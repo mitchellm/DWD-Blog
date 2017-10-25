@@ -1,0 +1,75 @@
+.bodybody{
+  margin:0 auto;
+  padding:0 auto;
+  background:skyblue;
+}
+.container > div {
+  border: 2px solid rgb(233,171,88);
+  border-radius: 5px;
+  padding: 1em;
+  color: black;
+}.container {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  grid-gap: 10px;
+  grid-auto-rows: minmax(100px, auto);  
+                      
+}
+.Top{
+		grid-column: 1 / 6;
+    grid-row: 1;
+    width: 1380px;
+    background-color: rgb(238, 213, 171) 
+
+}
+.LoginArea{ 
+  float:right;
+  padding:0 auto;
+  margin:0 auto;  
+}
+.logButton{
+   display: inline-block;
+   padding:0 auto;
+   margin:0 auto;  
+}
+
+.registerButton{
+  margin-left:10px;
+
+}
+.Left{
+  grid-column:1/2;
+  grid-row:2/7;
+  background-color: rgb(238, 213, 171) 
+}
+
+.Right{
+		grid-column: 4 / 4;
+    grid-row: 2/7;
+    width:268px;
+    background-color: rgb(238, 213, 171) 
+    
+}
+.Bottom{
+  grid-column: 1/6;
+  grid-row: 7;
+  background-color: rgb(238, 213, 171) 
+  
+}
+.Middle{
+  grid-column: 2/4;
+  grid-row: 2/7;
+  width:700px;
+  overflow-x: hidden;
+  overflow-y:scroll;
+  max-height: 700px;
+  background-color: thistle;
+  
+}
+
+
+.blogName{
+  color: black;
+  font-size:30px;
+  font-family: monospace;
+}
