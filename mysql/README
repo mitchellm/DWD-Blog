@@ -1,0 +1,8 @@
+The users' table relationships to the friends, and friend_requests table are many to many. 
+The intended use will be a user submits a friend request to a specific user, this request is stored in the friend_requests table.
+Once a request is made, a prompt will display somewhere for the recipent where they can confirm or delete the request.
+If the request is confirmed, the request is deleted BUT a matching record is inserted into the friends table.
+
+This was the best way I could conceptually imagine how to do a friend request system. Feel free to modify/change.
+
+(This is to implement the many-to-many relationship that professor Zhang required for the project)
