@@ -1,6 +1,0 @@
-Blogging system, few functionalities:
-* User accounts, emails to login with passwords - some information, profile images, taglines, display names
-* Each user can have 1..n blogs
-* Each blog can have 1..n blog entries
-* Each blog entry can have 1..n comments
-* Each comment has 1 user account that it is associated with
