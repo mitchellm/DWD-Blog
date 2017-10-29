@@ -10,7 +10,6 @@ SET @OLD_SQL_MODE=@@SQL_MODE, SQL_MODE='TRADITIONAL,ALLOW_INVALID_DATES';
 -- -----------------------------------------------------
 -- Schema blog
 -- -----------------------------------------------------
-DROP SCHEMA IF EXISTS `blog` ;
 
 -- -----------------------------------------------------
 -- Schema blog
@@ -21,8 +20,6 @@ USE `blog` ;
 -- -----------------------------------------------------
 -- Table `blog`.`users`
 -- -----------------------------------------------------
-DROP TABLE IF EXISTS `blog`.`users` ;
-
 CREATE TABLE IF NOT EXISTS `blog`.`users` (
   `userid` INT(11) NOT NULL AUTO_INCREMENT,
   `email` VARCHAR(45) NULL DEFAULT NULL,
@@ -36,8 +33,6 @@ DEFAULT CHARACTER SET = latin1;
 -- -----------------------------------------------------
 -- Table `blog`.`blog`
 -- -----------------------------------------------------
-DROP TABLE IF EXISTS `blog`.`blog` ;
-
 CREATE TABLE IF NOT EXISTS `blog`.`blog` (
   `blogid` INT(11) NOT NULL AUTO_INCREMENT,
   `author` INT(11) NOT NULL,
@@ -57,8 +52,6 @@ DEFAULT CHARACTER SET = latin1;
 -- -----------------------------------------------------
 -- Table `blog`.`blog_entry`
 -- -----------------------------------------------------
-DROP TABLE IF EXISTS `blog`.`blog_entry` ;
-
 CREATE TABLE IF NOT EXISTS `blog`.`blog_entry` (
   `entryid` INT(11) NOT NULL AUTO_INCREMENT,
   `blogid` INT(11) NOT NULL,
@@ -78,13 +71,11 @@ DEFAULT CHARACTER SET = latin1;
 -- -----------------------------------------------------
 -- Table `blog`.`comments`
 -- -----------------------------------------------------
-DROP TABLE IF EXISTS `blog`.`comments` ;
-
 CREATE TABLE IF NOT EXISTS `blog`.`comments` (
   `commentid` INT(11) NOT NULL AUTO_INCREMENT,
   `blogid` INT(11) NOT NULL,
   `content` TEXT NULL DEFAULT NULL,
-  `author` INT(11) NOT NULL,
+  `author` INT(11) NULL,
   PRIMARY KEY (`commentid`, `blogid`, `author`),
   INDEX `fk_comments_users1_idx` (`author` ASC),
   INDEX `fk_comments_blog_entry1_idx` (`blogid` ASC),
@@ -105,8 +96,6 @@ DEFAULT CHARACTER SET = latin1;
 -- -----------------------------------------------------
 -- Table `blog`.`friend_requests`
 -- -----------------------------------------------------
-DROP TABLE IF EXISTS `blog`.`friend_requests` ;
-
 CREATE TABLE IF NOT EXISTS `blog`.`friend_requests` (
   `sender` INT(11) NOT NULL,
   `recipent` INT(11) NOT NULL,
@@ -130,8 +119,6 @@ DEFAULT CHARACTER SET = latin1;
 -- -----------------------------------------------------
 -- Table `blog`.`friends`
 -- -----------------------------------------------------
-DROP TABLE IF EXISTS `blog`.`friends` ;
-
 CREATE TABLE IF NOT EXISTS `blog`.`friends` (
   `userA` INT(11) NOT NULL,
   `userB` INT(11) NOT NULL,
@@ -155,8 +142,6 @@ DEFAULT CHARACTER SET = latin1;
 -- -----------------------------------------------------
 -- Table `blog`.`sessions`
 -- -----------------------------------------------------
-DROP TABLE IF EXISTS `blog`.`sessions` ;
-
 CREATE TABLE IF NOT EXISTS `blog`.`sessions` (
   `sid` VARCHAR(255) NOT NULL,
   `timestamp` INT(255) NULL,

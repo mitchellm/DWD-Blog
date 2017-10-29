@@ -3,6 +3,8 @@ The intended use will be a user submits a friend request to a specific user, thi
 Once a request is made, a prompt will display somewhere for the recipent where they can confirm or delete the request.
 If the request is confirmed, the request is deleted BUT a matching record is inserted into the friends table.
 
+The only current null relationships in the database are as follows: a blog can exist without a blog entry. A comment can exist without an author. A blog entry can exist without comments. 
+
 This was the best way I could conceptually imagine how to do a friend request system. Feel free to modify/change.
 
 (This is to implement the many-to-many relationship that professor Zhang required for the project)
