@@ -9,7 +9,11 @@ $(function() {
         success: function (data) {
             //success
             var form = $('div#login');
-            form.html(data);
+            if(data == 0){
+                //do nothing, form is good as is
+            }else {
+                form.html(data);
+            }
         },
         error: function () {
             alert("an error has occured!");
