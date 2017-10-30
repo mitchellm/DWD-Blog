@@ -10,4 +10,5 @@ define('DB_HOST', '159.203.124.185');
 define('DB_USER', 'project');
 define('DB_PASS', 'goeagles');
 define('DB_NAME', 'blog');
+define('SESSION_LENGTH', 60);
 ?>

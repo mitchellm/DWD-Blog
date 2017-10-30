@@ -1,5 +1,6 @@
 $(function () {
     var api = "./../api/";
+
     $('form#login').submit(function (e) {
         e.preventDefault();
         var email = $(this).find('input#email').val();
@@ -23,7 +24,7 @@ $(function () {
             }
         });
     });
-    
+
     $('form#register').submit(function (e) {
         e.preventDefault();
         var email = $(this).find('input#email').val();
