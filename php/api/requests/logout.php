@@ -1,6 +1,6 @@
 <?php
 require_once('base.php');
-$session->clearSession($_SESSION['sid']);
+$session->clear($_SESSION['sid']);
 ?>
 You are logged out!
 <form id="login">

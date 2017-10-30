@@ -73,7 +73,6 @@
         </div>
         <br/><br/><br/>
         This demo works by using jquery ajax calls to submit the form data to the backend, and then returns and displays the response from the backend.<br/>
-        The errors will be displayed as an array dump, as this is just a bare test of the functionality.<br />
         <b>NOTE: This is actually inserting records into the database if the input values pass the validation, so you need to register an account for the login form to work!</b>
     </body>
 </html>

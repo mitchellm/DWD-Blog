@@ -25,7 +25,7 @@ class Session {
     public function __construct($dbc) {
         $this->mysqli = $dbc;
         $this->sid = isset($_SESSION['sid']) ? $_SESSION['sid'] : null;
-        is_null($this->sid) ? null : $this->validateSession($this->sid, time());
+        is_null($this->sid) ? null : $this->validate($this->sid, time());
         $this->last_error = "No recorded error...";
     }
 
@@ -125,8 +125,8 @@ class Session {
     function login($email, $pass) {
         if ($this->userExists($email, $pass)) {
             $userid = $this->getUID($email);
-            if ($this->sessionExists($userid)) {
-                $this->clearSession($userid);
+            if ($this->exists($userid)) {
+                $this->clear($userid);
             }
             $this->buildSession($userid,$email);
             echo "Successfully logged in to " . $email . "!";
@@ -157,7 +157,7 @@ class Session {
         }
     }
 
-    function sessionExists($userid) {
+    function exists($userid) {
         $stmt = $this->mysqli->query("SELECT * FROM sessions WHERE userid = '{$userid}'");
         if ($stmt->num_rows >= 1) {
             return true;
@@ -171,7 +171,7 @@ class Session {
         return false;
     }
     
-    function validateSession($sid, $currentTime) {
+    function validate($sid, $currentTime) {
         $timestamp = time();
         $sid = htmlentities(mysqli_real_escape_string($this->mysqli, $sid));
         $stmt = $this->mysqli->prepare("SELECT timestamp, userid FROM `sessions` WHERE `sid` = ?");
@@ -182,7 +182,7 @@ class Session {
         if ($stmt->num_rows >= 1) {
             while ($stmt->fetch()) {
                 if ($currentTime > $timestamp) {
-                    $this->clearSession($sid);
+                    $this->clear($sid);
                     return true;
                 }
             }
@@ -195,11 +195,11 @@ class Session {
         return false;
     }
 
-    function clearSessionByUID($userid) {
+    function clearByUID($userid) {
         $this->mysqli->query("DELETE FROM sessions WHERE userid='{$userid}'");
     }
     
-    function clearSession($sid) {
+    function clear($sid) {
         $sid = mysqli_real_escape_string($sid);
         $this->mysqli->query("DELETE FROM sessions WHERE sid='{$sid}'");
         session_destroy();
