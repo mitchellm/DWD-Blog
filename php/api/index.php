@@ -15,8 +15,9 @@ $session = new Session($db);
 foreach($_REQUEST as $key => $val) { $$key = trim($val); }
 
 $requests = array('login', 'register', 'checklogin', 'logout');
-
-if(isset($_SERVER['HTTP_X_REQUESTED_WITH']) && strtolower($_SERVER['HTTP_X_REQUESTED_WITH']) == 'xmlhttprequest' && isset($request)) {
+$httpXrequested = isset($_SERVER['HTTP_X_REQUESTED_WITH']);
+$isAjaxCall = strtolower($_SERVER['HTTP_X_REQUESTED_WITH']) == 'xmlhttprequest';
+if($httpXrequested && ($isAjaxCall || $request=="checklogin") && isset($request)) {
         $access = true;
 	$file = './requests/' . $request . '.php';
 	if(file_exists($file) && in_array($request, $requests)) {
@@ -25,6 +26,6 @@ if(isset($_SERVER['HTTP_X_REQUESTED_WITH']) && strtolower($_SERVER['HTTP_X_REQUE
             die("Request not found in host file-system OR not whitelisted.");
         }
 } else {
-	die("Attempting to direct access OR malformed request sent to API!");
+	die("Attempting to direct access OR malformed request sent to API! (API Level) <br /> Errors: A[" . $httpXrequested . "] // B[" .$isAjaxCall . "] // C[" . isset($request)."] // D[".$request."]");
 }
 ?>

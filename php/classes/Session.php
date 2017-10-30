@@ -91,33 +91,6 @@ class Session {
     }
 
     /**
-     * Generates a random ID with the length specified
-     * @param int $length to use
-     */
-    function generateRandID($length) {
-        return md5($this->generateRandStr($length));
-    }
-
-    /**
-     * Generates a random string based on the length provided
-     * @param int $length to use
-     */
-    function generateRandStr($length) {
-        $randstr = "";
-        for ($i = 0; $i < $length; $i++) {
-            $randnum = mt_rand(0, 61);
-            if ($randnum < 10) {
-                $randstr .= chr($randnum + 48);
-            } elseif ($randnum < 36) {
-                $randstr .= chr($randnum + 55);
-            } else {
-                $randstr .= chr($randnum + 61);
-            }
-        }
-        return $randstr;
-    }
-
-    /**
      * Sets a users session in the database and sets their client side session
      * @author Mitchell M. 
      * @version 1.0
@@ -128,19 +101,11 @@ class Session {
             if ($this->exists($userid)) {
                 $this->clear($userid);
             }
-            $this->buildSession($userid,$email);
+            $this->build($userid,$email);
             echo "Successfully logged in to " . $email . "!";
             return true;
         }
         echo "Invalid credentials! Try again.";
-    }
-
-    function buildSession($userid, $email) {
-        $sid = $this->generateRandID(16);
-        $timestamp = time() + 60 * SESSION_LENGTH;
-        $this->mysqli->query("INSERT INTO `sessions` (`userid`,`sid`,`timestamp`) VALUES ('{$userid}', '{$sid}', '{$timestamp}')");
-        $_SESSION['username'] = $email;
-        $_SESSION['sid'] = $sid;
     }
 
     function userExists($email, $password) {
@@ -169,6 +134,20 @@ class Session {
         if(isset($this->sid)) 
             return true;
         return false;
+    }
+
+    function getUID($email) {
+        $stmt = $this->mysqli->query("SELECT userid FROM `users` WHERE email ='{$email}'");
+        $data = $stmt->fetch_array(MYSQLI_ASSOC);
+        $stmt->close();
+    }
+
+    function build($userid, $email) {
+        $sid = $this->generateRandID(16);
+        $timestamp = time() + 60 * SESSION_LENGTH;
+        $this->mysqli->query("INSERT INTO `sessions` (`userid`,`sid`,`timestamp`) VALUES ('{$userid}', '{$sid}', '{$timestamp}')");
+        $_SESSION['username'] = $email;
+        $_SESSION['sid'] = $sid;
     }
     
     function validate($sid, $currentTime) {
@@ -205,12 +184,6 @@ class Session {
         session_destroy();
         $this->redirect('index.php');
     }
-
-    function getUID($email) {
-        $stmt = $this->mysqli->query("SELECT userid FROM `users` WHERE email ='{$email}'");
-        $data = $stmt->fetch_array(MYSQLI_ASSOC);
-        $stmt->close();
-    }
     
     /**
      * Redirects the the specified location
@@ -231,14 +204,31 @@ class Session {
     }
 
     /**
-     * Destroys a session and logs a user out;
-     * @author Mitchell M. 
-     * @version 1.0
+     * Generates a random ID with the length specified
+     * @param int $length to use
      */
-    public function logout() {
-        return false;
+    function generateRandID($length) {
+        return md5($this->generateRandStr($length));
     }
 
+    /**
+     * Generates a random string based on the length provided
+     * @param int $length to use
+     */
+    function generateRandStr($length) {
+        $randstr = "";
+        for ($i = 0; $i < $length; $i++) {
+            $randnum = mt_rand(0, 61);
+            if ($randnum < 10) {
+                $randstr .= chr($randnum + 48);
+            } elseif ($randnum < 36) {
+                $randstr .= chr($randnum + 55);
+            } else {
+                $randstr .= chr($randnum + 61);
+            }
+        }
+        return $randstr;
+    }
 }
 
 ?>
