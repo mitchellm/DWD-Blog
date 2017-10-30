@@ -10,17 +10,17 @@
   color: black;
 }.container {
   display: grid;
-  grid-gap: 10px;
+  grid-gap: 5px;
   grid-template-areas: 
-  "header"
-  "left"
-  "right"
-  "content"
-  "footer"
+  "header     header        header"
+  "sidebar    content      sidebar2"
+  "sidebar    content     sidebar2"
+  "sidebar    content      sidebar2"
+  
+  
 }
 .Top{
-  grid-area: "header"; 
-  width: 100%;
+  grid-area:header; 
 }
 .LoginArea{ 
   float:right;
@@ -38,31 +38,20 @@
 
 }
 .Left{
-  grid-column:1/2;
-  grid-row:2/7;
+  grid-area:sidebar;
   background-color: rgb(238, 213, 171) 
 }
 
 .Right{
-		grid-column: 4 / 4;
-    grid-row: 2/7;
-    width:268px;
-    background-color: rgb(238, 213, 171) 
+  grid-area:sidebar2;
+  background-color: rgb(238, 213, 171) 
     
 }
-.Bottom{
-  grid-column: 1/6;
-  grid-row: 7;
-  background-color: rgb(238, 213, 171) 
-  
-}
+
 .Middle{
-  grid-column: 2/4;
-  grid-row: 2/7;
-  width:700px;
+  grid-area:content;
   overflow-x: hidden;
   overflow-y:scroll;
-  max-height: 700px;
   background-color: thistle;
   
 }
