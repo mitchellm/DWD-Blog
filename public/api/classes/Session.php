@@ -58,16 +58,30 @@ class Session {
     public function createBlog($title) {
        if($this->isLoggedIn()) {
            $uid = $this->getUID($this->sid);
+           $date = new DateTime();
+           $date->setTimestamp(time());
+           $postDate = $date->format('Y-m-d');
            $qry = $this->qb->start();
-           $qry->insert_into("blog", array("title",$title));
+           $qry->insert_into("blog", array("title"=>$title,"author"=>$uid,"timestamp"=>$postDate));
            if($qry->exec()) {
             return 1;
            } else {
-               return json_encode("Failed to post blog for some reason related to the query!");
+               return json_encode($qry->lastError());
            }
        }
        return 0;
     }
+    
+    public function getBlogs() {
+        if($this->isLoggedIn()) {
+           $uid = $this->getUID($this->sid);
+           $qry = $this->qb->start();
+           $qry->select(array("title","blogid"))->from("blog")->where("author","=",$uid);
+           return $qry->get();
+        }
+    }
+    
+    
     /**
      * Registers the user into the database
      * @author Mitchell M. 

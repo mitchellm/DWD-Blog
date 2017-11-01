@@ -14,7 +14,7 @@ $session = new Session($db);
 
 foreach($_REQUEST as $key => $val) { $$key = trim($val); }
 
-$VALID_REQUESTS = array('login', 'register', 'checklogin', 'logout','createBlog');
+$VALID_REQUESTS = array('login', 'register', 'checklogin', 'logout','createBlog','refreshBlogs');
 $httpXrequested = isset($_SERVER['HTTP_X_REQUESTED_WITH']);
 $isAjaxCall = $httpXrequested ? strtolower($_SERVER['HTTP_X_REQUESTED_WITH']) == 'xmlhttprequest' : null;
 

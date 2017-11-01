@@ -22,6 +22,13 @@
     <body>
         <p>
             For this page you are auto-logged in as a some random user account, you then are simulating the input to post a blog entry/create a new blog.
+            <br/>
+            You create a new blog (basically a folder) with the form on the left, then you can post entries under that header with the right form.
+            <br/>
+            After you create a new blog heading, it will populate under the dropdown and you can select it to post from.
+        </p>
+        <p id="info" style="font-weight:bold;">
+            
         </p>
         <form style="border:1px solid black; float:left;" id="create">
             <table>
@@ -43,7 +50,7 @@
                 </tr>
             </table>
         </form>
-        <form style="border:1px solid black; float:left;">
+        <form style="border:1px solid black; float:left;" id="newentry">
             <table>
                 <tr>
                     <td colspan="2" style="text-align:center;">Post New Blog Entry</td>
@@ -62,9 +69,16 @@
                     </td>
                     <td>
                         <select>
-                            <option value="1">My life as a farm hand</option>
-                            <option value="2">My new job</option>
-                            <option value="3">Owning an audi</option>
+                            <?php
+                            $blogs = $session->getBlogs();
+                            if(count($blogs) == 1) {
+                                echo "<option value=\"{$blogs["blogid"]}\">{$blogs["title"]}</option>";
+                            } else {
+                                for($i = 0; $i<count($blogs); $i++) {
+                                    echo "<option value=\"{$blogs[$i]['blogid']}\">{$blogs[$i]['title']}</option>";
+                                }
+                            }
+                            ?>
                         </select>
                     </td>
                 </tr>
