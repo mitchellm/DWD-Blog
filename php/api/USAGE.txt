@@ -1,9 +1,0 @@
-USAGE:?request=?&var1=n&var2=n
-POST data to the handler. 
-
-IE REQUEST:
-http://www.host.com/requestHandler/index.php?request=addTask&task=Do%20%the%20%dishes&date=2017-10-25
-
-Passes request = "addTask", task = "Do the dishes", and date as "2017-10-25"
-
-Demo generates these post requests with the javascript

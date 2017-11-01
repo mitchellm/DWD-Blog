@@ -6,7 +6,7 @@
  * @category   Class
  * @package    classes.Session
  * @author     Mitchell M. <mm11096@georgiasouthern.edu>
- * @version    Release: 1.0.0
+ * @version    Release: 1.0.5
  * @since      Class available since Release 1.0.0
  */
 require_once __DIR__ . '/../config/global.php';
@@ -15,7 +15,7 @@ class Session {
 
     private static $self_instance;
     public $last_error;
-    private $mysqli;
+    private $mysqli, $qb;
 
     /**
      * Constructs the class, setting the mysqli variable to the active connection
@@ -23,6 +23,7 @@ class Session {
      * @version 1.1.0
      */
     public function __construct($dbc) {
+        $this->qb = QueryBuilder::getInstance();
         $this->mysqli = $dbc;
         $this->sid = isset($_SESSION['sid']) ? $_SESSION['sid'] : null;
         is_null($this->sid) ? null : $this->validate($this->sid, time());
@@ -51,8 +52,8 @@ class Session {
      * @version 1.0
      */
     public function register($email, $password, $passwordconf) {
-        $password = md5($password);
-        $passwordconf = md5($passwordconf);
+        $password = md5($password . $email);
+        $passwordconf = md5($passwordconf . $email);
         if (!$email) {
             $errors[] = "Email is not defined!";
         }
@@ -69,21 +70,18 @@ class Session {
             $errors[] = "The two passwords you entered do not match!";
         }
         if ($email) {
-            $stmt = $this->mysqli->prepare("SELECT * FROM `users` WHERE `email`= ?");
-            $stmt->bind_param("s", $email);
-            $stmt->execute();
-            $stmt->store_result();
-            if ($stmt->num_rows > 0) {
+            $qry = $this->qb->start();
+            $qry->select('*')->from('users')->where('email', '=', $email);
+            $matching = $qry->numRows();
+            if ($matching > 0) {
                 $errors[] = "The e-mail address you supplied is already in use of another user!";
             }
-            $stmt->close();
         }
         if (!isset($errors)) {
             //register the account
-            $mysqli = $this->mysqli->prepare("INSERT INTO `users` (`email`, `password`) VALUES (?,?)");
-            $mysqli->bind_param("ss", $email, $password);
-            $mysqli->execute();
-            $mysqli->close();
+            $qry = $this->db->start();
+            $qry->insert_into("users", array('email' => $email, 'password' => $password));
+            $qry->exec();
             echo "Registered successfully with email: " . $email . " and password: " . $password;
         } else {
             var_dump($errors);
@@ -110,7 +108,7 @@ class Session {
 
     function userExists($email, $password) {
         $email = htmlspecialchars(mysqli_real_escape_string($this->mysqli, $email));
-        $pass = md5($password);
+        $pass = md5($password . $email);
         $stmt = $this->mysqli->prepare("SELECT * FROM `users` WHERE `email` = ? AND `password` = ?");
         $stmt->bind_param("ss", $email, $pass);
         $stmt->execute();
