@@ -8,12 +8,10 @@ $(function() {
         async: true,
         success: function (data) {
             //success
-            var form = $('div#login');
-            if(data == 0){
-                //do nothing, form is good as is
-            }else {
-                form.html(data);
-            }
+            if(data == 1){
+               $("div#loggedIn").show();
+               $("form#login").hide();
+            } 
         },
         error: function () {
             alert("an error has occured!");

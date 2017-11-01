@@ -1,3 +1,3 @@
 <?php
 require_once('base.php');
-$session->login($email,$password);
+echo $session->login($email,$password) ? 1 : 0;

@@ -79,7 +79,7 @@ class Session {
         }
         if (!isset($errors)) {
             //register the account
-            $qry = $this->db->start();
+            $qry = $this->qb->start();
             $qry->insert_into("users", array('email' => $email, 'password' => $password));
             $qry->exec();
             echo "Registered successfully with email: " . $email . " and password: " . $password;
@@ -100,20 +100,17 @@ class Session {
                 $this->clear($userid);
             }
             $this->build($userid,$email);
-            echo "Successfully logged in to " . $email . "!";
-            return true;
+            return 1;
         }
-        echo "Invalid credentials! Try again.";
+        return 0;
     }
 
     function userExists($email, $password) {
         $email = htmlspecialchars(mysqli_real_escape_string($this->mysqli, $email));
         $pass = md5($password . $email);
-        $stmt = $this->mysqli->prepare("SELECT * FROM `users` WHERE `email` = ? AND `password` = ?");
-        $stmt->bind_param("ss", $email, $pass);
-        $stmt->execute();
-        $stmt->store_result();
-        if ($stmt->num_rows > 0) {
+        $qry = $this->qb->start();
+        $qry->select("*")->from("users")->where("email","=",$email)->where("password","=",$pass);
+        if ($qry->recordsExist()) {
             return true;
         } else {
             return false;
@@ -121,8 +118,9 @@ class Session {
     }
 
     function exists($userid) {
-        $stmt = $this->mysqli->query("SELECT * FROM sessions WHERE userid = '{$userid}'");
-        if ($stmt->num_rows >= 1) {
+        $qry = $this->qb->start();
+        $qry->select("*")->from("sessions")->where("userid", "=",$userid);
+        if ($qry->recordsExist()) {
             return true;
         }
         return false;
@@ -135,15 +133,22 @@ class Session {
     }
 
     function getUID($email) {
-        $stmt = $this->mysqli->query("SELECT userid FROM `users` WHERE email ='{$email}'");
-        $data = $stmt->fetch_array(MYSQLI_ASSOC);
-        $stmt->close();
+        $qry = $this->qb->start();
+        $qry->select("userid")
+                ->from("users")
+                ->where("email", "=", $email);
+        $result = $qry->get();
+        return $result['userid'];
     }
 
     function build($userid, $email) {
         $sid = $this->generateRandID(16);
         $timestamp = time() + 60 * SESSION_LENGTH;
-        $this->mysqli->query("INSERT INTO `sessions` (`userid`,`sid`,`timestamp`) VALUES ('{$userid}', '{$sid}', '{$timestamp}')");
+        
+        $qry = $this->qb->start();
+        $qry->insert_into("sessions", array('userid' => $userid, 'sid' => $sid, 'timestamp' => $timestamp));
+        $qry->exec();
+        
         $_SESSION['username'] = $email;
         $_SESSION['sid'] = $sid;
     }

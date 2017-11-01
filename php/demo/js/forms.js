@@ -1,6 +1,6 @@
 $(function () {
     var api = "./../api/";
-
+    $("div#loggedIn").hide();
     $('form#login').submit(function (e) {
         e.preventDefault();
         var email = $(this).find('input#email').val();
@@ -16,8 +16,13 @@ $(function () {
             url: api + 'index.php',
             async: true,
             success: function (data) {
-                //success
-                form.append('<br />' + data);
+                if(data == 1) {
+                    form.fadeOut("slow");
+                    $("div#loggedIn").hide();
+                    $("div#loggedIn").show();
+                } else {
+                    form.append("<br/> Failed to login!");
+                }
             },
             error: function () {
                 alert("an error has occured!");
@@ -32,8 +37,6 @@ $(function () {
         var passwordconf = $(this).find('input#passwordconf').val();
         var form = $('div#register');
         form.hide();
-        form.html('<h3>Your register request has been submitted. </h3>');
-        form.fadeIn("slow");
 
         $.ajax({
             type: 'POST',
@@ -42,10 +45,28 @@ $(function () {
             async: true,
             success: function (data) {
                 //success
-                form.append('<br />' + data);
+                form.html(data);
+                form.fadeIn("slow");
             },
             error: function () {
                 alert("an error has occured!");
+            }
+        });
+    });
+    $('form#logout').submit(function (e) {
+        e.preventDefault();
+       $.ajax({
+            type: 'POST',
+            data: 'request=logout&r=t',
+            url: api + 'index.php',
+            async: true,
+            success: function (data) {
+                //success
+                $("div#loggedIn").hide();
+                $("form#login").show();
+            },
+            error: function () {
+                alert("B");
             }
         });
     });

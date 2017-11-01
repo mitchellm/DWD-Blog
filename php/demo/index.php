@@ -8,6 +8,12 @@
         <title>register/login functional demo</title>
     </head>
     <body>
+        <div id="loggedIn">         
+            You are logged in already!
+            <form id="logout">
+                <input type="submit" value="Logout" />
+            </form>
+        </div>
         <div id="login">
             <form id="login">
                 <table>
