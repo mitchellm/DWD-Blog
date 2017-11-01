@@ -80,8 +80,7 @@ $(function () {
             async: true,
             success: function (data) {
                 //success
-                $("div#loggedIn").hide();
-                $("form#login").show();
+                $("div#loggedIn").html("Logged out.");
             },
             error: function () {
                 alert("B");

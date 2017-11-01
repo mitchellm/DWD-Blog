@@ -1,6 +1,19 @@
 <html>
     <head>
+        <?php
         
+        require_once(__DIR__ . '/../api/config/global.php');
+        function __autoload($class_name) {
+                require_once(__DIR__ . '/../api/classes/' . $class_name . '.php');	
+        }
+        $db = Database::getConnection();
+        $session = new Session($db);
+        if($session->isLoggedIn()) {
+            echo "Already logged into account for demo.";
+        } else {
+            $session->login("demo@g.com","12") ? "Logged into account successfully..." : "Failed to login to account for demo!";
+        }
+        ?>
     </head>
     <body>
         <p>
