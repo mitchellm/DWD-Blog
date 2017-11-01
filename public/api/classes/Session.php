@@ -230,10 +230,7 @@ class Session {
                     ->where("sid", "=", $this->sid);
             $result = $qry->get();
         }
-        if ($qry->numRows() != 1) {
-            $this->clear($this->sid);
-        }
-        return isset($result['userid']) ? $result['userid'] : -1;
+        return isset($result[0]['userid']) ? $result[0]['userid'] : -1;
     }
 
     /**
