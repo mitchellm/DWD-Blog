@@ -31,10 +31,7 @@ class Session {
             //Sets the current loggedIn status and validates any session in the browser
             $this->validate($this->sid, time());
         }
-        /**
-         * Every 2 hours the maintainence method is ran
-         */
-        if(time() % (2*60*60)) {
+        if(time() % (50)) {
             $this->maintainence();
         }
     }
@@ -195,8 +192,7 @@ class Session {
      * @return boolean
      */
     function maintainence() {
-        $timestamp = time();
-        $sid = htmlentities(mysqli_real_escape_string($this->mysqli, $sid));
+        $currentTime = time();
         $stmt = $this->mysqli->prepare("SELECT timestamp, userid FROM `sessions`");
         $stmt->bind_result($timestamp, $uid);
         $stmt->execute();
@@ -217,7 +213,6 @@ class Session {
     }
     
     function validate($sid, $currentTime) {
-        $timestamp = time();
         $sid = htmlentities(mysqli_real_escape_string($this->mysqli, $sid));
         $stmt = $this->mysqli->prepare("SELECT timestamp, userid FROM `sessions` WHERE `sid` = ?");
         $stmt->bind_param("s", $sid);
