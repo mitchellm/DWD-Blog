@@ -8,18 +8,22 @@
         }
         $db = Database::getConnection();
         $session = new Session($db);
-        if($session->isLoggedIn()) {
-            echo "Already logged into account for demo.";
+        if(!$session->isLoggedIn()) {
+            echo $session->login("a@b.c","12") ? "Logged you in for this demo." : "Couldnt log you in...";
         } else {
-            $session->login("demo@g.com","12") ? "Logged into account successfully..." : "Failed to login to account for demo!";
+            echo "Already signed into an account that will work for the demo!";
         }
         ?>
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+        <script src="./js/blog.js"></script>
+        <meta charset="UTF-8">
+        <title>blogging functional demo</title>
     </head>
     <body>
         <p>
             For this page you are auto-logged in as a some random user account, you then are simulating the input to post a blog entry/create a new blog.
         </p>
-        <form style="border:1px solid black; float:left;">
+        <form style="border:1px solid black; float:left;" id="create">
             <table>
                 <tr>
                     <td colspan="2" style="text-align:center;">Create New Blog</td>

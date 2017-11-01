@@ -80,10 +80,10 @@ $(function () {
             async: true,
             success: function (data) {
                 //success
-                $("div#loggedIn").html("Logged out.");
+                $("div#loggedIn").html("<a href=\"logreg.php\">Refresh</a>");
             },
             error: function () {
-                alert("B");
+                alert("error");
             }
         });
     });

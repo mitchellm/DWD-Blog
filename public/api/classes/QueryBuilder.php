@@ -276,6 +276,10 @@ class QueryBuilder {
         $query = $this->db->query($this->query);
         return $query;
     }
+    
+    function lastError() {
+        return $this->db->error;
+    }
 
     /**
      * Trims the whitespace buffering from the query

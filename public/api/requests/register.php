@@ -1,3 +1,3 @@
 <?php
 require_once('base.php');
-$session->register($email,$password,$passwordconf);
+echo $session->register($email,$password,$passwordconf);

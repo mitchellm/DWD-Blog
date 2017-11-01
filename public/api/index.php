@@ -14,12 +14,13 @@ $session = new Session($db);
 
 foreach($_REQUEST as $key => $val) { $$key = trim($val); }
 
-$VALID_REQUESTS = array('login', 'register', 'checklogin', 'logout');
+$VALID_REQUESTS = array('login', 'register', 'checklogin', 'logout','createBlog');
 $httpXrequested = isset($_SERVER['HTTP_X_REQUESTED_WITH']);
 $isAjaxCall = $httpXrequested ? strtolower($_SERVER['HTTP_X_REQUESTED_WITH']) == 'xmlhttprequest' : null;
 
 //CHEAP BUGFIX (to be figured out l8er)
-$isAjaxCall = $isAjaxCall || $request == "checklogin";
+if(isset($request))
+    $isAjaxCall = $isAjaxCall || $request == "checklogin";
 
 if ($httpXrequested && ($isAjaxCall) && isset($request)) {
     $access = true;

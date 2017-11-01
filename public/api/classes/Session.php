@@ -14,7 +14,6 @@ require_once __DIR__ . '/../config/global.php';
 class Session {
 
     private static $self_instance;
-    public $last_error;
     private $mysqli, $qb;
 
     /**
@@ -25,9 +24,19 @@ class Session {
     public function __construct($dbc) {
         $this->qb = QueryBuilder::getInstance();
         $this->mysqli = $dbc;
+        
+        //Determines if the user has a session id set
         $this->sid = isset($_SESSION['sid']) ? $_SESSION['sid'] : null;
-        is_null($this->sid) ? null : $this->validate($this->sid, time());
-        $this->last_error = "No recorded error...";
+        if($this->sid != null) {
+            //Sets the current loggedIn status and validates any session in the browser
+            $this->validate($this->sid, time());
+        }
+        /**
+         * Every 2 hours the maintainence method is ran
+         */
+        if(time() % (2*60*60)) {
+            $this->maintainence();
+        }
     }
 
     /**
@@ -46,6 +55,22 @@ class Session {
         return self::$self_instance;
     }
 
+    /**
+     * Posts a new blog/folder to the database under some user account
+     */
+    public function createBlog($title) {
+       if($this->isLoggedIn()) {
+           $uid = $this->getUID($this->sid);
+           $qry = $this->qb->start();
+           $qry->insert_into("blog", array("title",$title));
+           if($qry->exec()) {
+            return 1;
+           } else {
+               return json_encode("Failed to post blog for some reason related to the query!");
+           }
+       }
+       return 0;
+    }
     /**
      * Registers the user into the database
      * @author Mitchell M. 
@@ -82,9 +107,9 @@ class Session {
             $qry = $this->qb->start();
             $qry->insert_into("users", array('email' => $email, 'password' => $password));
             $qry->exec();
-            echo "Registered successfully with email: " . $email . " and password: " . $password;
+            return json_encode("Registered successfully with email: " . $email . " and password: " . $password);
         } else {
-            var_dump($errors);
+            return json_encode($errors);
         }
     }
 
@@ -96,11 +121,14 @@ class Session {
     function login($email, $pass) {
         if ($this->userExists($email, $pass)) {
             $userid = $this->getUID($email);
+            //If a session exists...
             if ($this->exists($userid)) {
-                $this->clear($userid);
+                //Delete it
+                $this->clearByUID($userid);
             }
-            $this->build($userid,$email);
-            return 1;
+            if($this->build($userid,$email)) {
+                return 1;
+            }
         }
         return 0;
     }
@@ -127,30 +155,65 @@ class Session {
     }
     
     function isLoggedIn() {
-        if(isset($this->sid)) 
-            return true;
-        return false;
+        return isset($_SESSION['sid']);
     }
 
     function getUID($email) {
-        $qry = $this->qb->start();
-        $qry->select("userid")
-                ->from("users")
-                ->where("email", "=", $email);
-        $result = $qry->get();
+        if (filter_var($email, FILTER_VALIDATE_EMAIL) == true) {
+            $qry = $this->qb->start();
+            $qry->select("userid")
+                    ->from("users")
+                    ->where("email", "=", $email);
+            $result = $qry->get();
+        } else {
+            $qry = $this->qb->start();
+            $qry->select("userid")
+                    ->from("sessions")
+                    ->where("sid", "=", $this->sid);
+            $result = $qry->get();
+        }
         return $result['userid'];
     }
 
     function build($userid, $email) {
         $sid = $this->generateRandID(16);
-        $timestamp = time() + 60 * SESSION_LENGTH;
+        $time = time();
+        $timestamp = $time + 60 * SESSION_LENGTH;
         
         $qry = $this->qb->start();
         $qry->insert_into("sessions", array('userid' => $userid, 'sid' => $sid, 'timestamp' => $timestamp));
-        $qry->exec();
-        
-        $_SESSION['username'] = $email;
-        $_SESSION['sid'] = $sid;
+        if($qry->exec()) {
+            $_SESSION['username'] = $email;
+            $_SESSION['sid'] = $sid;
+            return 1;
+        } 
+        return 0;
+    }
+    
+    /**
+     * Checks ALL sessions for expiry and clears database of them
+     * @return boolean
+     */
+    function maintainence() {
+        $timestamp = time();
+        $sid = htmlentities(mysqli_real_escape_string($this->mysqli, $sid));
+        $stmt = $this->mysqli->prepare("SELECT timestamp, userid FROM `sessions`");
+        $stmt->bind_result($timestamp, $uid);
+        $stmt->execute();
+        $stmt->store_result();
+        if ($stmt->num_rows >= 1) {
+            while ($stmt->fetch()) {
+                //stored timestamp is the logintime + allowed session length
+                //checking to see if we have passed that time
+                if ($currentTime > $timestamp) {
+                    $this->clear($sid);
+                    return false;
+                } else {
+                    return true;
+                }
+            }
+        }
+        $stmt->close();
     }
     
     function validate($sid, $currentTime) {
@@ -163,18 +226,17 @@ class Session {
         $stmt->store_result();
         if ($stmt->num_rows >= 1) {
             while ($stmt->fetch()) {
+                //stored timestamp is the logintime + allowed session length
+                //checking to see if we have passed that time
                 if ($currentTime > $timestamp) {
                     $this->clear($sid);
+                    return false;
+                } else {
                     return true;
                 }
             }
         }
         $stmt->close();
-        $updateClick = $this->mysqli->prepare("UPDATE `sessions` SET `lastclick` = ? WHERE sid = ?");
-        $updateClick->bind_param("is", $timestamp, $sid);
-        $updateClick->execute();
-        $updateClick->close();
-        return false;
     }
 
     function clearByUID($userid) {
@@ -182,10 +244,9 @@ class Session {
     }
     
     function clear($sid) {
-        $sid = mysqli_real_escape_string($sid);
+        $sid = mysqli_real_escape_string($this->mysqli, $sid);
         $this->mysqli->query("DELETE FROM sessions WHERE sid='{$sid}'");
         session_destroy();
-        $this->redirect('index.php');
     }
     
     /**
