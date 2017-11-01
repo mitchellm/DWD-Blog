@@ -1,0 +1,62 @@
+API README
+====================================
+
+===============
+Making a request:
+===============
+The API accepts async POST requests with only one mandatory parameter: "request".
+The requests have to be listed in the api/index.php
+
+The request parameter determines where in the API to route the call. For example, if you send a post request with the following information:
+url: API_INDEX
+form data: {request:login, email:abc@website.com, password:password}
+TYPE: POST
+
+EXAMPLE JQERU CODE THAT DOES THIS:
+$.ajax({
+    type: 'POST',
+    data: 'request=login&email=' + email + '&password=' + password,
+    url: pathToHandler + 'index.php',
+    async: true,
+    success: function (data) {
+        $('div#login').append('<br />' + data);
+    },
+    error: function () {
+        alert("an error has occured!");
+    }
+});
+
+The demo folder has two forms that work using jquery dom manipulation+ajax calls to log you in and register your account through the api.
+
+
+===============
+After sending a request, the API will produce a response. 
+===============
+
+Possible responses:
+In situations where a simple success/failure response will work, it will just return 0 or 1.
+
+0 = FAILURE
+1 = SUCCESS 
+
+For things with a wide arrange of possible errors or outputs (such as registration), the API will return a json encoded array of all errors 
+encountered/whatever needs to be made known that you can represent through the GUI.
+
+Responses can be catered to the intended feature if you just let me know what you want it to return from the database.
+
+The URL for the demo is: http://104.236.250.1/demo/
+The URL for the api is: http://104.236.250.1/api/
+
+
+
+===============
+ERROR EXPLANATION
+===============
+
+If a request is not pre-configured in the API, you will recieve a response: Request not found in host file-system OR not whitelisted.
+
+If the request is malformed when it hits the API, you will recieve a list of boolean codes. The key is here:
+A=Was the SERVER property "HTTP X REQUESTED WITH" set? (Header that is used to determine if ajax call is valid)
+B=HTTP X REQUESTED WITH set to "XMLHttpRequest" (validates that it is a true ajax call)
+C=Was a request parsed from the request sent to the api?
+D=Value of the request sent to API
