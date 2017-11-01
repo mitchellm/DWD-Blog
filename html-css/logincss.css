@@ -33,19 +33,33 @@
    margin:0 auto;  
 }
 
-.registerButton{
-  margin-left:10px;
-
-}
 .Left{
   grid-area:sidebar;
-  background-color: rgb(238, 213, 171) 
+  background-color: rgb(238, 213, 171);
+  width:200px;  
 }
 
 .Right{
   grid-area:sidebar2;
-  background-color: rgb(238, 213, 171) 
-    
+  background-color: rgb(238, 213, 171);
+  width:200px;  
+}
+.registerEmail{
+  display:block;
+  width:170px;
+}
+.registerPassword{
+  display:block;
+  width:170px;
+  
+}
+.conformPassword{
+  display:block;
+  width:170px;
+  
+}
+.registerButton{
+display:block;
 }
 
 .Middle{
@@ -53,6 +67,7 @@
   overflow-x: hidden;
   overflow-y:scroll;
   background-color: thistle;
+  height:max-content;
   
 }
 
