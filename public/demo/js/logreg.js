@@ -39,6 +39,7 @@ $(function () {
                     $("div#loggedIn").hide();
                     $("div#loggedIn").show();
                 } else {
+                    form.append(data);
                     form.append("<br/> Failed to login!");
                 }
             },

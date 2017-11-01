@@ -15,6 +15,7 @@ class Session {
 
     private static $self_instance;
     private $mysqli, $qb;
+    public $sid;
 
     /**
      * Constructs the class, setting the mysqli variable to the active connection
@@ -24,14 +25,14 @@ class Session {
     public function __construct($dbc) {
         $this->qb = QueryBuilder::getInstance();
         $this->mysqli = $dbc;
-        
+
         //Determines if the user has a session id set
         $this->sid = isset($_SESSION['sid']) ? $_SESSION['sid'] : null;
-        if($this->sid != null) {
+        if ($this->sid != null) {
             //Sets the current loggedIn status and validates any session in the browser
             $this->validate($this->sid, time());
         }
-        if(time() % (50)) {
+        if (time() % (50)) {
             $this->maintainence();
         }
     }
@@ -56,32 +57,55 @@ class Session {
      * Posts a new blog/folder to the database under some user account
      */
     public function createBlog($title) {
-       if($this->isLoggedIn()) {
-           $uid = $this->getUID($this->sid);
-           $date = new DateTime();
-           $date->setTimestamp(time());
-           $postDate = $date->format('Y-m-d');
-           $qry = $this->qb->start();
-           $qry->insert_into("blog", array("title"=>$title,"author"=>$uid,"timestamp"=>$postDate));
-           if($qry->exec()) {
-            return 1;
-           } else {
-               return json_encode($qry->lastError());
-           }
-       }
-       return 0;
+        if ($this->isLoggedIn()) {
+            $uid = $this->getUID($this->sid);
+            $date = new DateTime();
+            $date->setTimestamp(time());
+            $postDate = $date->format('Y-m-d');
+            $qry = $this->qb->start();
+            $qry->insert_into("blog", array("title" => $title, "author" => $uid, "timestamp" => $postDate));
+            if ($qry->exec()) {
+                return 1;
+            } else {
+                return json_encode($qry->lastError());
+            }
+        }
+        return 0;
     }
-    
+
+    /**
+     * Posts a new blog/folder to the database under some user account
+     */
+    public function createEntry($title, $content, $blogid) {
+        if ($this->isLoggedIn()) {
+            $uid = $this->getUID($this->sid);
+            $date = new DateTime();
+            $date->setTimestamp(time());
+            $postDate = $date->format('Y-m-d');
+            $qry = $this->db->start();
+            $qry->select("*")->from("blog")->where("blogid", "=", $blogid);
+            if ($qry->numRows() == 1) {
+                $qry = $this->qb->start();
+                $qry->insert_into("blog_entry", array("title" => $title, "blogid" => $blogid, "timestamp" => $postDate, "content" => $content));
+                if ($qry->exec()) {
+                    return 1;
+                } else {
+                    return json_encode($qry->lastError());
+                }
+            }
+        }
+        return 0;
+    }
+
     public function getBlogs() {
-        if($this->isLoggedIn()) {
-           $uid = $this->getUID($this->sid);
-           $qry = $this->qb->start();
-           $qry->select(array("title","blogid"))->from("blog")->where("author","=",$uid);
-           return $qry->get();
+        if ($this->isLoggedIn()) {
+            $uid = $this->getUID($this->sid);
+            $qry = $this->qb->start();
+            $qry->select(array("title", "blogid"))->from("blog")->where("author", "=", $uid);
+            return $qry->get();
         }
     }
-    
-    
+
     /**
      * Registers the user into the database
      * @author Mitchell M. 
@@ -130,17 +154,42 @@ class Session {
      * @version 1.0
      */
     function login($email, $pass) {
+     //   echo "[A]";
         if ($this->userExists($email, $pass)) {
+            //echo "[B]";
             $userid = $this->getUID($email);
-            //If a session exists...
-            if ($this->exists($userid)) {
-                //Delete it
-                $this->clearByUID($userid);
-            }
-            if($this->build($userid,$email)) {
+            if ($this->handleSID($userid)) {
+          //      echo "[C]";
                 return 1;
             }
         }
+        //echo "[D]";
+        return 0;
+    }
+
+    public function handleSID($userid) {
+        if ($this->exists($userid)) {
+            if (!$this->clearByUID($userid)) {
+                return json_encode("Couldn't clear SID when creating new session.");
+            }
+        }
+        if ($this->buildSID($userid)) {
+            return true;
+        }
+        return false;
+    }
+
+    function buildSID($userid) {
+        $sid = $this->generateRandID(16);
+        $time = time();
+        $timestamp = $time + 60 * SESSION_LENGTH;
+
+        $qry = $this->qb->start();
+        $qry->insert_into("sessions", array('userid' => $userid, 'sid' => $sid, 'timestamp' => $timestamp));
+        if ($qry->exec()) {
+            $_SESSION['sid'] = $sid;
+            return 1;
+        } 
         return 0;
     }
 
@@ -148,7 +197,7 @@ class Session {
         $email = htmlspecialchars(mysqli_real_escape_string($this->mysqli, $email));
         $pass = md5($password . $email);
         $qry = $this->qb->start();
-        $qry->select("*")->from("users")->where("email","=",$email)->where("password","=",$pass);
+        $qry->select("*")->from("users")->where("email", "=", $email)->where("password", "=", $pass);
         if ($qry->recordsExist()) {
             return true;
         } else {
@@ -158,49 +207,35 @@ class Session {
 
     function exists($userid) {
         $qry = $this->qb->start();
-        $qry->select("*")->from("sessions")->where("userid", "=",$userid);
+        $qry->select("*")->from("sessions")->where("userid", "=", $userid);
         if ($qry->recordsExist()) {
             return true;
         }
         return false;
     }
-    
+
     function isLoggedIn() {
         return isset($_SESSION['sid']);
     }
 
     function getUID($email) {
+        $qry = $this->qb->start();
+        $qry->select("userid");
         if (filter_var($email, FILTER_VALIDATE_EMAIL) == true) {
-            $qry = $this->qb->start();
-            $qry->select("userid")
-                    ->from("users")
+            $qry->from("users")
                     ->where("email", "=", $email);
             $result = $qry->get();
         } else {
-            $qry = $this->qb->start();
-            $qry->select("userid")
-                    ->from("sessions")
+            $qry->from("sessions")
                     ->where("sid", "=", $this->sid);
             $result = $qry->get();
         }
-        return $result['userid'];
+        if ($qry->numRows() != 1) {
+            $this->clear($this->sid);
+        }
+        return isset($result['userid']) ? $result['userid'] : -1;
     }
 
-    function build($userid, $email) {
-        $sid = $this->generateRandID(16);
-        $time = time();
-        $timestamp = $time + 60 * SESSION_LENGTH;
-        
-        $qry = $this->qb->start();
-        $qry->insert_into("sessions", array('userid' => $userid, 'sid' => $sid, 'timestamp' => $timestamp));
-        if($qry->exec()) {
-            $_SESSION['username'] = $email;
-            $_SESSION['sid'] = $sid;
-            return 1;
-        } 
-        return 0;
-    }
-    
     /**
      * Checks ALL sessions for expiry and clears database of them
      * @return boolean
@@ -225,7 +260,7 @@ class Session {
         }
         $stmt->close();
     }
-    
+
     function validate($sid, $currentTime) {
         $sid = htmlentities(mysqli_real_escape_string($this->mysqli, $sid));
         $stmt = $this->mysqli->prepare("SELECT timestamp, userid FROM `sessions` WHERE `sid` = ?");
@@ -244,20 +279,28 @@ class Session {
                     return true;
                 }
             }
+        } else {
+            if (isset($_SESSION['sid'])) {
+                $this->clear($sid);
+            }
         }
         $stmt->close();
     }
 
     function clearByUID($userid) {
-        $this->mysqli->query("DELETE FROM sessions WHERE userid='{$userid}'");
+        if ($this->mysqli->query("DELETE FROM sessions WHERE userid='{$userid}'")) {
+            return true;
+        } else {
+            return $this->mysqli->error;
+        }
     }
-    
+
     function clear($sid) {
         $sid = mysqli_real_escape_string($this->mysqli, $sid);
         $this->mysqli->query("DELETE FROM sessions WHERE sid='{$sid}'");
         session_destroy();
     }
-    
+
     /**
      * Redirects the the specified location
      * @param string $location to redirect to
@@ -302,6 +345,7 @@ class Session {
         }
         return $randstr;
     }
+
 }
 
 ?>

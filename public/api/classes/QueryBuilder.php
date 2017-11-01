@@ -248,16 +248,11 @@ class QueryBuilder {
      * @return type
      */
     function get() {
+        $ret = null;
         $query_result = $this->db->query($this->query);
-        if($query_result->num_rows > 1) {
             while ($row = $query_result->fetch_assoc()) {
                 $ret[] = $row;
             }
-        } else {
-            while ($row = $query_result->fetch_assoc()) {
-                $ret = $row;
-            }
-        }
         $query_result->free();
         return $ret;
     }

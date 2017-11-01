@@ -12,6 +12,7 @@
             echo $session->login("a@b.c","12") ? "Logged you in for this demo." : "Couldnt log you in...";
         } else {
             echo "Already signed into an account that will work for the demo!";
+            echo "<br />Stored SID (CLIENT):".$_SESSION['sid']." \\ Server side: " . $session->sid;
         }
         ?>
         <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
@@ -37,7 +38,7 @@
                 </tr>
                 <tr>
                     <td>
-                        Title:
+                        Blog Title:
                     </td>
                     <td>
                         <input type="text" name="title" id="title" />
@@ -57,10 +58,10 @@
                 </tr>
                 <tr>
                     <td>
-                        Heading:
+                        Entry Title:
                     </td>
                     <td>
-                        <input type="text" name="heading" id="heading" />
+                        <input type="text" name="heading" id="title" />
                     </td>
                 </tr>
                 <tr>
@@ -68,9 +69,10 @@
                         Post Under Blog:
                     </td>
                     <td>
-                        <select>
+                        <select name="blogid">
                             <?php
                             $blogs = $session->getBlogs();
+                            die(var_dump($blogs));
                             if(count($blogs) == 1) {
                                 echo "<option value=\"{$blogs["blogid"]}\">{$blogs["title"]}</option>";
                             } else {
@@ -87,7 +89,7 @@
                         Content:
                     </td>
                     <td>
-                        <textarea></textarea>
+                        <textarea id="content"></textarea>
                     </td>
                 </tr>
                 <tr>

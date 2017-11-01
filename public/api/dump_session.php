@@ -11,6 +11,8 @@ if($session->isLoggedIn()){
 } else {
     echo "NOT LOGGED IN";
 }
+
+echo $session->validate($session->sid, time()) ? "TRUE" : "FALSE";
 echo "<pre>";
 var_dump($_SESSION);
 echo "</pre>";

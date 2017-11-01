@@ -35,4 +35,30 @@ $(function () {
             }
         });
     });
+    
+    $('form#newentry').submit(function (e) {
+        e.preventDefault();
+        var title = $(this).find('input#title').val();
+        var content = $(this).find('textarea#content').val();        
+        var blogid = $(this).find('select#blogid').val();
+        
+        $.ajax({
+            type: 'POST',
+            data: 'request=createEntry&title=' + title +'&content='+content+'&blogid='+blogid,
+            url: api + 'index.php',
+            async: true,
+            success: function (data) {
+                alert(data);
+                if (data == 1) {
+                    info.html("Successfully created your blog entry.");
+                } else {
+                    info.html("Failed to create your blog entry.");
+                }
+                info.fadeIn("slow");
+            },
+            error: function () {
+                alert("an error has occured!");
+            }
+        });
+    });
 });
