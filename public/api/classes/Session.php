@@ -112,6 +112,7 @@ class Session {
      * @version 1.0
      */
     public function register($email, $password, $passwordconf) {
+        $display = $password;
         $password = md5($password . $email);
         $passwordconf = md5($passwordconf . $email);
         if (!$email) {
@@ -142,7 +143,7 @@ class Session {
             $qry = $this->qb->start();
             $qry->insert_into("users", array('email' => $email, 'password' => $password));
             $qry->exec();
-            return json_encode("Registered successfully with email: " . $email . " and password: " . $password);
+            return json_encode("Registered successfully with email: " . $email . " and password: " . $display);
         } else {
             return json_encode($errors);
         }
@@ -218,16 +219,16 @@ class Session {
         return isset($_SESSION['sid']);
     }
 
-    function getUID($email) {
+    function getUID($input) {
         $qry = $this->qb->start();
         $qry->select("userid");
-        if (filter_var($email, FILTER_VALIDATE_EMAIL) == true) {
+        if (filter_var($input, FILTER_VALIDATE_EMAIL) == true) {
             $qry->from("users")
-                    ->where("email", "=", $email);
+                    ->where("email", "=", $input);
             $result = $qry->get();
         } else {
             $qry->from("sessions")
-                    ->where("sid", "=", $this->sid);
+                    ->where("sid", "=", $input);
             $result = $qry->get();
         }
         return isset($result[0]['userid']) ? $result[0]['userid'] : -1;

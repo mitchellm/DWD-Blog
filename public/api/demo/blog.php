@@ -94,5 +94,77 @@
                 </tr>
             </table>
         </form>
+        <table>
+            <tr>
+                <th>
+                    Blog Title
+                </th>
+                <th>
+                    Entry Title
+                </th>
+                <th>
+                    Author
+                </th>
+                <th>
+                    Post date
+                </th>
+            </tr>
+            <tr>
+                <td>
+                    A day in the life
+                </td>
+                <td>
+                    Day 1
+                </td>
+                <td>
+                    Mitchell M.
+                </td>
+                <td>
+                    11/1/2/2017
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    A day in the life
+                </td>
+                <td>
+                    Day 1
+                </td>
+                <td>
+                    Mitchell M.
+                </td>
+                <td>
+                    11/1/2/2017
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    A day in the life
+                </td>
+                <td>
+                    Day 1
+                </td>
+                <td>
+                    Mitchell M.
+                </td>
+                <td>
+                    11/1/2/2017
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    A day in the life
+                </td>
+                <td>
+                    Day 1
+                </td>
+                <td>
+                    Mitchell M.
+                </td>
+                <td>
+                    11/1/2/2017
+                </td>
+            </tr>
+        </table>
     </body>
 </html>
