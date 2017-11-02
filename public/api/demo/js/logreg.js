@@ -1,9 +1,24 @@
 $(function () {
-    var api = "./../api/";
+    var api = "./../";
     $("div#loggedIn").hide();
-    
+    $.ajax({
+        type: 'POST',
+        data: 'request=checklogin',
+        url: api + 'index.php',
+        async: true,
+        success: function (data) {
+            //success
+            if (data == 1) {
+                $("div#loggedIn").show();
+                $("form#login").hide();
+            }
+        },
+        error: function () {
+            alert("an error has occured!");
+        }
+    });
 
-    
+
     $('form#login').submit(function (e) {
         e.preventDefault();
         var email = $(this).find('input#email').val();
@@ -19,7 +34,7 @@ $(function () {
             url: api + 'index.php',
             async: true,
             success: function (data) {
-                if(data == 1) {
+                if (data == 1) {
                     form.fadeOut("slow");
                     $("div#loggedIn").hide();
                     $("div#loggedIn").show();
@@ -59,7 +74,7 @@ $(function () {
     });
     $('form#logout').submit(function (e) {
         e.preventDefault();
-       $.ajax({
+        $.ajax({
             type: 'POST',
             data: 'request=logout&r=t',
             url: api + 'index.php',

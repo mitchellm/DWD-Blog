@@ -14,7 +14,7 @@ $session = new Session($db);
 
 foreach($_REQUEST as $key => $val) { $$key = trim($val); }
 
-$VALID_REQUESTS = array('login', 'register', 'checklogin', 'logout','createBlog','refreshBlogs');
+$VALID_REQUESTS = array('login', 'register', 'checklogin', 'logout','createBlog','createEntry','refreshBlogs');
 $httpXrequested = isset($_SERVER['HTTP_X_REQUESTED_WITH']);
 $isAjaxCall = $httpXrequested ? strtolower($_SERVER['HTTP_X_REQUESTED_WITH']) == 'xmlhttprequest' : null;
 
@@ -28,7 +28,7 @@ if ($httpXrequested && ($isAjaxCall) && isset($request)) {
     if (file_exists($file) && in_array($request, $VALID_REQUESTS)) {
         require_once($file);
     } else {
-        die("Request not found in host file-system OR not whitelisted.");
+        die("Request not found in host file-system OR not whitelisted. {$request}");
     }
 } else {
     $req_out = isset($request) ? $request : null;

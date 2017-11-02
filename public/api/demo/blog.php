@@ -2,9 +2,9 @@
     <head>
         <?php
         
-        require_once(__DIR__ . '/../api/config/global.php');
+        require_once(__DIR__ . '/../config/global.php');
         function __autoload($class_name) {
-                require_once(__DIR__ . '/../api/classes/' . $class_name . '.php');	
+                require_once(__DIR__ . '/../classes/' . $class_name . '.php');	
         }
         $db = Database::getConnection();
         $session = new Session($db);
@@ -69,7 +69,7 @@
                         Post Under Blog:
                     </td>
                     <td>
-                        <select name="blogid">
+                        <select id="blogid">
                             <?php
                             $blogs = $session->getBlogs();
                                 for($i = 0; $i<count($blogs); $i++) {

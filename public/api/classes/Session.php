@@ -82,7 +82,7 @@ class Session {
             $date = new DateTime();
             $date->setTimestamp(time());
             $postDate = $date->format('Y-m-d');
-            $qry = $this->db->start();
+            $qry = $this->qb->start();
             $qry->select("*")->from("blog")->where("blogid", "=", $blogid);
             if ($qry->numRows() == 1) {
                 $qry = $this->qb->start();

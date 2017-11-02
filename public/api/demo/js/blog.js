@@ -1,10 +1,11 @@
 $(function () {
-    var api = "./../api/";
+    var api = "./../";
     var info = $("p#info");
     info.hide();
     $('form#create').submit(function (e) {
         e.preventDefault();
         var title = $(this).find('input#title').val();
+                    alert(api + "index.php");
         $.ajax({
             type: 'POST',
             data: 'request=createBlog&title=' + title,
@@ -40,7 +41,7 @@ $(function () {
         e.preventDefault();
         var title = $(this).find('input#title').val();
         var content = $(this).find('textarea#content').val();        
-        var blogid = $(this).find('select#blogid').val();
+        var blogid = $(this).find('select#blogid option:selected').val();
         
         $.ajax({
             type: 'POST',
@@ -48,7 +49,6 @@ $(function () {
             url: api + 'index.php',
             async: true,
             success: function (data) {
-                alert(data);
                 if (data == 1) {
                     info.html("Successfully created your blog entry.");
                 } else {
