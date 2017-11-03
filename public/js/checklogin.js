@@ -8,7 +8,6 @@ $(function () {
     var label = $("label#info");
     var logout = $("input#logout");
     var api = "./api/";
-    
     //jQuery ajax call to the api
     $.ajax({
         type: 'POST',
@@ -18,7 +17,7 @@ $(function () {
         success: function (response) {
             //If api returns 1
             if (response == 1) {
-                label.html("You are already logged in!");
+                label.html("You are already logged in...");
                 $("form#loginForm").fadeOut("slow", function () {
                     label.fadeIn("fast");
                     logout.fadeIn("fast");

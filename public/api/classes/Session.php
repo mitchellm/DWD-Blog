@@ -32,9 +32,6 @@ class Session {
             //Sets the current loggedIn status and validates any session in the browser
             $this->validate($this->sid, time());
         }
-        if (time() % (50)) {
-            $this->maintainence();
-        }
     }
 
     /**
@@ -42,223 +39,26 @@ class Session {
      * @author Mitchell M. 
      * @version 0.7
      */
-    public function __destruct() {
-        
-    }
+    public function __destruct() {}
 
+    /*
+     * Singleton getInstance
+     * Returns an instance of the session object that 
+     * will utilize the the passed database object for queries
+     */
     public static function getInstance($dbc) {
         if (!self::$self_instance) {
             self::$self_instance = new Session($dbc);
         }
         return self::$self_instance;
     }
-
+    
     /**
-     * Posts a new blog/folder to the database under some user account
-     */
-    public function createBlog($title) {
-        if ($this->isLoggedIn()) {
-            $uid = $this->getUID($this->sid);
-            $date = new DateTime();
-            $date->setTimestamp(time());
-            $postDate = $date->format('Y-m-d');
-            $qry = $this->qb->start();
-            $qry->insert_into("blog", array("title" => $title, "author" => $uid, "timestamp" => $postDate));
-            if ($qry->exec()) {
-                return 1;
-            } else {
-                return json_encode($qry->lastError());
-            }
-        }
-        return 0;
-    }
-
-    /**
-     * Posts a new blog/folder to the database under some user account
-     */
-    public function createEntry($title, $content, $blogid) {
-        if ($this->isLoggedIn()) {
-            $uid = $this->getUID($this->sid);
-            $date = new DateTime();
-            $date->setTimestamp(time());
-            $postDate = $date->format('Y-m-d');
-            $qry = $this->qb->start();
-            $qry->select("*")->from("blog")->where("blogid", "=", $blogid);
-            if ($qry->numRows() == 1) {
-                $qry = $this->qb->start();
-                $qry->insert_into("blog_entry", array("title" => $title, "blogid" => $blogid, "timestamp" => $postDate, "content" => $content));
-                if ($qry->exec()) {
-                    return 1;
-                } else {
-                    return json_encode($qry->lastError());
-                }
-            }
-        }
-        return 0;
-    }
-
-    public function getBlogs() {
-        if ($this->isLoggedIn()) {
-            $uid = $this->getUID($this->sid);
-            $qry = $this->qb->start();
-            $qry->select(array("title", "blogid"))->from("blog")->where("author", "=", $uid);
-            return $qry->get();
-        }
-    }
-
-    /**
-     * Registers the user into the database
-     * @author Mitchell M. 
-     * @version 1.0
-     */
-    public function register($email, $password, $passwordconf) {
-        $display = $password;
-        $password = md5($password . $email);
-        $passwordconf = md5($passwordconf . $email);
-        if (!$email) {
-            $errors[] = "Email is not defined!";
-        }
-        if (!$password) {
-            $errors[] = "Password is not defined!";
-        }
-        if (!$passwordconf) {
-            $errors[] = "Password confirmation is not defined!";
-        }
-        if (filter_var($email, FILTER_VALIDATE_EMAIL) == false) {
-            $errors[] = "Email address is invalid!";
-        }
-        if ($password != $passwordconf) {
-            $errors[] = "The two passwords you entered do not match!";
-        }
-        if ($email) {
-            $qry = $this->qb->start();
-            $qry->select('*')->from('users')->where('email', '=', $email);
-            $matching = $qry->numRows();
-            if ($matching > 0) {
-                $errors[] = "The e-mail address you supplied is already in use of another user!";
-            }
-        }
-        if (!isset($errors)) {
-            //register the account
-            $qry = $this->qb->start();
-            $qry->insert_into("users", array('email' => $email, 'password' => $password));
-            $qry->exec();
-            return json_encode("Registered successfully with email: " . $email . " and password: " . $display);
-        } else {
-            return json_encode($errors);
-        }
-    }
-
-    /**
-     * Sets a users session in the database and sets their client side session
-     * @author Mitchell M. 
-     * @version 1.0
-     */
-    function login($email, $pass) {
-     //   echo "[A]";
-        if ($this->userExists($email, $pass)) {
-            //echo "[B]";
-            $userid = $this->getUID($email);
-            if ($this->handleSID($userid)) {
-          //      echo "[C]";
-                return 1;
-            }
-        }
-        //echo "[D]";
-        return 0;
-    }
-
-    public function handleSID($userid) {
-        if ($this->exists($userid)) {
-            if (!$this->clearByUID($userid)) {
-                return json_encode("Couldn't clear SID when creating new session.");
-            }
-        }
-        if ($this->buildSID($userid)) {
-            return true;
-        }
-        return false;
-    }
-
-    function buildSID($userid) {
-        $sid = $this->generateRandID(16);
-        $time = time();
-        $timestamp = $time + 60 * SESSION_LENGTH;
-
-        $qry = $this->qb->start();
-        $qry->insert_into("sessions", array('userid' => $userid, 'sid' => $sid, 'timestamp' => $timestamp));
-        if ($qry->exec()) {
-            $_SESSION['sid'] = $sid;
-            return 1;
-        } 
-        return 0;
-    }
-
-    function userExists($email, $password) {
-        $email = htmlspecialchars(mysqli_real_escape_string($this->mysqli, $email));
-        $pass = md5($password . $email);
-        $qry = $this->qb->start();
-        $qry->select("*")->from("users")->where("email", "=", $email)->where("password", "=", $pass);
-        if ($qry->recordsExist()) {
-            return true;
-        } else {
-            return false;
-        }
-    }
-
-    function exists($userid) {
-        $qry = $this->qb->start();
-        $qry->select("*")->from("sessions")->where("userid", "=", $userid);
-        if ($qry->recordsExist()) {
-            return true;
-        }
-        return false;
-    }
-
-    function isLoggedIn() {
-        return isset($_SESSION['sid']);
-    }
-
-    function getUID($input) {
-        $qry = $this->qb->start();
-        $qry->select("userid");
-        if (filter_var($input, FILTER_VALIDATE_EMAIL) == true) {
-            $qry->from("users")
-                    ->where("email", "=", $input);
-            $result = $qry->get();
-        } else {
-            $qry->from("sessions")
-                    ->where("sid", "=", $input);
-            $result = $qry->get();
-        }
-        return isset($result[0]['userid']) ? $result[0]['userid'] : -1;
-    }
-
-    /**
-     * Checks ALL sessions for expiry and clears database of them
+     * Validates if a session is valid, and clears it if not
+     * @param type $sid
+     * @param type $currentTime
      * @return boolean
      */
-    function maintainence() {
-        $currentTime = time();
-        $stmt = $this->mysqli->prepare("SELECT timestamp, userid FROM `sessions`");
-        $stmt->bind_result($timestamp, $uid);
-        $stmt->execute();
-        $stmt->store_result();
-        if ($stmt->num_rows >= 1) {
-            while ($stmt->fetch()) {
-                //stored timestamp is the logintime + allowed session length
-                //checking to see if we have passed that time
-                if ($currentTime > $timestamp) {
-                    $this->clear($sid);
-                    return false;
-                } else {
-                    return true;
-                }
-            }
-        }
-        $stmt->close();
-    }
-
     function validate($sid, $currentTime) {
         $sid = htmlentities(mysqli_real_escape_string($this->mysqli, $sid));
         $stmt = $this->mysqli->prepare("SELECT timestamp, userid FROM `sessions` WHERE `sid` = ?");
@@ -284,19 +84,259 @@ class Session {
         }
         $stmt->close();
     }
+    
+    /**
+     * Is a user logged in?
+     * @return type
+     */
+    function isLoggedIn() {
+        return isset($_SESSION['sid']);
+    }
 
+    /**
+     * Returns the UID based on email/sid input
+     * @param type $input
+     * @return type
+     */
+    function getUID($input) {
+        $qry = $this->qb->start();
+        $qry->select("userid");
+        if (filter_var($input, FILTER_VALIDATE_EMAIL) == true) {
+            $qry->from("users")
+                    ->where("email", "=", $input);
+            $result = $qry->get();
+        } else {
+            $qry->from("sessions")
+                    ->where("sid", "=", $input);
+            $result = $qry->get();
+        }
+        return isset($result[0]['userid']) ? $result[0]['userid'] : -1;
+    }
+
+    /**
+     * Clear session based on UserID
+     * @param type $userid
+     * @return boolean
+     */
     function clearByUID($userid) {
         if ($this->mysqli->query("DELETE FROM sessions WHERE userid='{$userid}'")) {
             return true;
         } else {
             return $this->mysqli->error;
         }
+        unset($_SESSION['sid']);
     }
 
+    /**
+     * Clear session based on SID
+     * @param type $sid
+     */
     function clear($sid) {
         $sid = mysqli_real_escape_string($this->mysqli, $sid);
         $this->mysqli->query("DELETE FROM sessions WHERE sid='{$sid}'");
-        session_destroy();
+        unset($_SESSION['sid']);
+    }
+
+    /**
+     * Registers the user into the database
+     * @author Mitchell M. 
+     * @version 1.0
+     */
+    public function register($email, $password, $passwordconf) {
+        $display = $password;
+        $password = md5($password . $email);
+        $passwordconf = md5($passwordconf . $email);
+        
+        //An array of checks that add elements to an error array as they occur.
+        if (!$email) {
+            $errors[] = "Email is not defined!";
+        }
+        if (!$password) {
+            $errors[] = "Password is not defined!";
+        }
+        if (!$passwordconf) {
+            $errors[] = "Password confirmation is not defined!";
+        }
+        if (filter_var($email, FILTER_VALIDATE_EMAIL) == false) {
+            $errors[] = "Email address is invalid!";
+        }
+        if ($password != $passwordconf) {
+            $errors[] = "The two passwords you entered do not match!";
+        }
+        if ($email) {
+            $qry = $this->qb->start();
+            $qry->select('*')->from('users')->where('email', '=', $email);
+            $matching = $qry->numRows();
+            if ($matching > 0) {
+                $errors[] = "The e-mail address you supplied is already in use of another user!";
+            }
+        }
+        
+        //Did we encounter errors?
+        if (!isset($errors)) {
+            //No errors, register the account
+            $qry = $this->qb->start();
+            $qry->insert_into("users", array('email' => $email, 'password' => $password));
+            $qry->exec();
+            return json_encode("Registered successfully with email: " . $email . " and password: " . $display);
+        } else {
+            //There were errors, return them
+            return json_encode($errors);
+        }
+    }
+
+    /**
+     * Sets a users session in the database and sets their client side session
+     * @author Mitchell M. 
+     * @version 1.0
+     */
+    function login($email, $pass) {
+        //Does the user exist?
+        if ($this->userExists($email, $pass)) {
+            //User exists, get their userID for session creation
+            $userid = $this->getUID($email);
+            if ($this->handleSID($userid)) {
+                //Create a session with the user's ID
+                return 1;
+            }
+        }
+        return 0;
+    }
+    
+    /*
+     * Validates that the login details are valid
+     */
+    function userExists($email, $password) {
+        $email = htmlspecialchars(mysqli_real_escape_string($this->mysqli, $email));
+        $pass = md5($password . $email);
+        $qry = $this->qb->start();
+        $qry->select("*")->from("users")->where("email", "=", $email)->where("password", "=", $pass);
+        if ($qry->recordsExist()) {
+            return true;
+        } else {
+            return false;
+        }
+    }
+
+    /*
+     * Manages sessions and prevents more than one session per user
+     */
+    public function handleSID($userid) {
+        //Does a session already exist for this userID?
+        if ($this->exists($userid)) {
+            //Session exists, clear it...
+            if (!$this->clearByUID($userid)) {
+                //Couldnt clear the session, return a json element containing the error
+                return json_encode("Couldn't clear SID when creating new session.");
+            }
+        }
+        //Creates the session with the specific userid
+        if ($this->buildSID($userid)) {
+            return true;
+        }
+        return false;
+    }
+
+    /**
+     * Does a session exist for the UserID passed
+     * @param type $userid
+     * @return boolean
+     */
+    function exists($userid) {
+        $qry = $this->qb->start();
+        $qry->select("*")->from("sessions")->where("userid", "=", $userid);
+        if ($qry->recordsExist()) {
+            return true;
+        }
+        return false;
+    }
+
+    /**
+     * Creates a session entry into the database and on the client machine
+     * @param type $userid
+     * @return int
+     */
+    function buildSID($userid) {
+        $sid = $this->generateRandID(16);
+        $time = time();
+        $timestamp = $time + 60 * SESSION_LENGTH;
+
+        $qry = $this->qb->start();
+        $qry->insert_into("sessions", array('userid' => $userid, 'sid' => $sid, 'timestamp' => $timestamp));
+        if ($qry->exec()) {
+            $_SESSION['sid'] = $sid;
+            return 1;
+        } 
+        return 0;
+    }
+    
+    /**
+     * Posts a new blog/folder to the database under some user account
+     */
+    public function createBlog($title) {
+        if ($this->isLoggedIn()) {
+            //Gets the metadata for the blog
+            $uid = $this->getUID($this->sid);
+            $date = new DateTime();
+            $date->setTimestamp(time());
+            $postDate = $date->format('Y-m-d');
+            
+            //Begin building insertion
+            $qry = $this->qb->start();
+            $qry->insert_into("blog", array("title" => $title, "author" => $uid, "timestamp" => $postDate));
+            if ($qry->exec()) {
+                //Successful insert
+                return 1;
+            } else {
+                //Returns a json element containing the error
+                return json_encode($qry->lastError());
+            }
+        }
+        return 0;
+    }
+
+    /**
+     * Posts a new blog/folder to the database under some user account
+     */
+    public function createEntry($title, $content, $blogid) {
+        if ($this->isLoggedIn()) {
+            //Gets the metadata for the entry
+            $uid = $this->getUID($this->sid);
+            $date = new DateTime();
+            $date->setTimestamp(time());
+            $postDate = $date->format('Y-m-d');
+            $qry = $this->qb->start();
+            
+            //Does the parent blogid exist?
+            $qry->select("*")->from("blog")->where("blogid", "=", $blogid);
+            if ($qry->numRows() == 1) {
+                //Parent blog exists, insert the blog entry
+                $qry = $this->qb->start();
+                $qry->insert_into("blog_entry", array("title" => $title, "blogid" => $blogid, "timestamp" => $postDate, "content" => $content));
+                if ($qry->exec()) {
+                    //Success
+                    return 1;
+                } else {
+                    //Fail, return json element containing the error
+                    return json_encode($qry->lastError());
+                }
+            }
+        }
+        return 0;
+    }
+
+    /**
+     * Pulls an array of the blogs for the logged in user
+     * @return type
+     */
+    public function getBlogs() {
+        if ($this->isLoggedIn()) {
+            //Gets uid and selects all blogs under that author
+            $uid = $this->getUID($this->sid);
+            $qry = $this->qb->start();
+            $qry->select(array("title", "blogid"))->from("blog")->where("author", "=", $uid);
+            return $qry->get();
+        }
     }
 
     /**
