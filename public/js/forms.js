@@ -1,33 +1,43 @@
 $(function () {
+    // Selecting the elements that are frequently accessed and the api path
     var api = "./api/";
     var label = $("label#info");
     var logout = $("input#logout");
     label.hide();
     logout.hide();
 
+    /**
+     * Binds an event listener on the loginForm, captures the entered inputs on submit and fires this function
+     */
     $("form#loginForm").on("submit", function (e) {
         e.preventDefault()
         var email = $("input#loginemail").val();
         var password = $("input#loginpass").val();
+        //Fades out the login form, and calls a function that adds a "in progress" response to the page 
+        //once the form is faded it makes an ajax call to determine if login is correct
         $(this).fadeOut("slow", function () {
             label.html("Submitting your login request...");
             label.fadeIn("slow");
+            //Ajax call to verify login details
             $.ajax({
                 type: 'POST',
                 data: 'request=login&email=' + email + '&password=' + password,
                 url: api + 'index.php',
                 async: true,
-                success: function (data) {
-                    if (data == 1) {
+                success: function (response) {
+                    if (response == 1) {
+                        //API returned 1, ALL GOOD USER DETAILS CORRECT...
                         label.html("You are now logged in to your account with email " + email + "!");
                         logout.html("slow");
                     } else {
+                        //API DIDNT RETURN 1, BAD LOGIN
                         label.html("Invalid login details!");
 
                     }
-
+                    //Fades in the response label, then when that completes it 
+                    //changes the html based on success or fail of login.
                     label.fadeIn(5000, function () {
-                        if (data == 1) {
+                        if (response == 1) {
                             logout.fadeIn("fast");
                             $("form#registerForm").fadeOut("slow");
                         } else {
@@ -45,39 +55,50 @@ $(function () {
         clearLogin();
     });
 
+    /**
+     * Binds an event listener on the registerForm, captures the entered inputs on submit and fires this function
+     */
     $("form#registerForm").on("submit", function (e) {
         e.preventDefault();
         var email = $(this).find('input#regemail').val();
         var password = $(this).find('input#regpassword').val();
         var passwordconf = $(this).find('input#regpasswordconf').val();
-
+        
+        //Fades out the register form, and calls a function that adds a "in progress" response to the page 
+        //once the form is faded it makes an ajax call to determine if register info is valid
         label.html("Submitting your login request...");
         label.fadeIn("slow");
+        //Ajax register call
         $.ajax({
             type: 'POST',
             data: 'request=register&email=' + email + '&password=' + password + '&passwordconf=' + passwordconf,
             url: api + 'index.php',
             async: true,
             success: function (data) {
+                //Sets the response label to the API response and fades it in
                 label.html(data);
                 label.fadeIn("slow");
             },
             error: function () {
-                alert("an error has occured!");
+                alert("An error with the register form has occured!");
             }
         });
         clearRegistration();
     });
 
+    /**
+     * Binds an event listener on the logout button, captures the entered inputs on submit and fires this function
+     */
 
     $('form#logout').submit(function (e) {
         e.preventDefault();
+        //Sends api request to logout and changes the page, impossible for logout to fail so no conditional
         $.ajax({
             type: 'POST',
             data: 'request=logout&r=t',
             url: api + 'index.php',
             async: true,
-            success: function (data) {
+            success: function (response) {
                 label.fadeOut("fast", function () {
                     logout.fadeOut("fast", function () {
                         $("form#loginForm").fadeIn("fast");
@@ -86,7 +107,7 @@ $(function () {
                 });
             },
             error: function () {
-                alert("error");
+                alert("Error with logout!");
             }
         });
         clearLogin();
