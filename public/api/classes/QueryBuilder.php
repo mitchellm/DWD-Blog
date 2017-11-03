@@ -24,6 +24,9 @@ class QueryBuilder {
     private $firstWhere;
     private $qryType;
 
+    /**
+     * Creates a new instance with a connection to the database
+     */
     function __construct() {
         $this->db = new mysqli(DB_HOST, DB_USER, DB_PASS, DB_NAME);
         $this->state = 0;
@@ -38,6 +41,10 @@ class QueryBuilder {
         return new QueryBuilder();
     }
     
+    /**
+     * Begins a new instance of the querybuilder
+     * @return \QueryBuilder
+     */
     public function start() {
         return new QueryBuilder();
     }
@@ -119,6 +126,13 @@ class QueryBuilder {
         return $this;
     }
 
+    /**
+     * Draws the rest of the UPDATE query to set $column to $toVal
+     * @param type $column
+     * @param type $toVal
+     * @return $this
+     * @throws Exception
+     */
     function set($column, $toVal) {
         $column = $this->clean($column);
         $toVal = $this->clean($toVal);
@@ -144,6 +158,13 @@ class QueryBuilder {
         return $this;
     }
 
+    /**
+     * Begins an insert into $table query, takes an 1D array of colum names and values
+     * @param type $table
+     * @param type $values
+     * @return $this
+     * @throws Execption
+     */
     function insert_into($table, $values) {
         $table = $this->clean($table);
         $values = $this->clean($values);
@@ -177,6 +198,11 @@ class QueryBuilder {
         return $this;
     }
 
+    /**
+     * Applies a limit to the end of the query
+     * @param type $n
+     * @return $this
+     */
     function limit($n) {
         if ($this->state > 0) {
             $this->query .= "LIMIT " . $n;
@@ -184,6 +210,11 @@ class QueryBuilder {
         return $this;
     }
 
+    /**
+     * Begins drawing a DELETE FROM query
+     * @param type $table
+     * @return $this
+     */
     function delete_from($table) {
         $table = $this->clean($table);
         if ($this->state == 0) {
@@ -257,21 +288,37 @@ class QueryBuilder {
         return $ret;
     }
     
+    /**
+     * Returns the num rows
+     * @return numRows int
+     */
     function numRows() {
         $query_result = $this->db->query($this->query);
         return $query_result->num_rows;
     }
     
+    /**
+     * Do records exist with the current query?
+     * @return type
+     */
     function recordsExist() {
         $query_result = $this->db->query($this->query);
         return $query_result->num_rows > 0;
     }
 
+    /**
+     * Runs the stored query
+     * @return type
+     */
     function exec() {
         $query = $this->db->query($this->query);
         return $query;
     }
     
+    /**
+     * Returns the last error recorded
+     * @return type
+     */
     function lastError() {
         return $this->db->error;
     }
