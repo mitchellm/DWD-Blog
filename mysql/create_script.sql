@@ -26,7 +26,7 @@ CREATE TABLE IF NOT EXISTS `blog`.`users` (
   `password` VARCHAR(45) NULL DEFAULT NULL,
   PRIMARY KEY (`userid`))
 ENGINE = InnoDB
-AUTO_INCREMENT = 3
+AUTO_INCREMENT = 27
 DEFAULT CHARACTER SET = latin1;
 
 
@@ -37,7 +37,7 @@ CREATE TABLE IF NOT EXISTS `blog`.`blog` (
   `blogid` INT(11) NOT NULL AUTO_INCREMENT,
   `author` INT(11) NOT NULL,
   `title` VARCHAR(45) NOT NULL,
-  `timestamp` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  `timestamp` DATE NOT NULL,
   PRIMARY KEY (`blogid`),
   INDEX `fk_blog_users1_idx` (`author` ASC),
   CONSTRAINT `fk_blog_users1`
@@ -46,6 +46,7 @@ CREATE TABLE IF NOT EXISTS `blog`.`blog` (
     ON DELETE NO ACTION
     ON UPDATE NO ACTION)
 ENGINE = InnoDB
+AUTO_INCREMENT = 17
 DEFAULT CHARACTER SET = latin1;
 
 
@@ -55,8 +56,9 @@ DEFAULT CHARACTER SET = latin1;
 CREATE TABLE IF NOT EXISTS `blog`.`blog_entry` (
   `entryid` INT(11) NOT NULL AUTO_INCREMENT,
   `blogid` INT(11) NOT NULL,
+  `title` VARCHAR(55) NULL DEFAULT NULL,
   `content` TEXT NULL DEFAULT NULL,
-  `timestamp` TIMESTAMP NULL DEFAULT NULL,
+  `timestamp` DATE NULL DEFAULT NULL,
   PRIMARY KEY (`entryid`),
   INDEX `fk_blog_entry_blog1_idx` (`blogid` ASC),
   CONSTRAINT `fk_blog_entry_blog1`
@@ -65,6 +67,7 @@ CREATE TABLE IF NOT EXISTS `blog`.`blog_entry` (
     ON DELETE NO ACTION
     ON UPDATE NO ACTION)
 ENGINE = InnoDB
+AUTO_INCREMENT = 2
 DEFAULT CHARACTER SET = latin1;
 
 
@@ -75,18 +78,18 @@ CREATE TABLE IF NOT EXISTS `blog`.`comments` (
   `commentid` INT(11) NOT NULL AUTO_INCREMENT,
   `blogid` INT(11) NOT NULL,
   `content` TEXT NULL DEFAULT NULL,
-  `author` INT(11) NULL,
-  PRIMARY KEY (`commentid`, `blogid`, `author`),
+  `author` INT(11) NULL DEFAULT NULL,
+  PRIMARY KEY (`commentid`, `blogid`),
   INDEX `fk_comments_users1_idx` (`author` ASC),
   INDEX `fk_comments_blog_entry1_idx` (`blogid` ASC),
-  CONSTRAINT `fk_comments_users1`
-    FOREIGN KEY (`author`)
-    REFERENCES `blog`.`users` (`userid`)
-    ON DELETE NO ACTION
-    ON UPDATE NO ACTION,
   CONSTRAINT `fk_comments_blog_entry1`
     FOREIGN KEY (`blogid`)
     REFERENCES `blog`.`blog_entry` (`entryid`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION,
+  CONSTRAINT `fk_comments_users1`
+    FOREIGN KEY (`author`)
+    REFERENCES `blog`.`users` (`userid`)
     ON DELETE NO ACTION
     ON UPDATE NO ACTION)
 ENGINE = InnoDB
@@ -144,16 +147,10 @@ DEFAULT CHARACTER SET = latin1;
 -- -----------------------------------------------------
 CREATE TABLE IF NOT EXISTS `blog`.`sessions` (
   `sid` VARCHAR(255) NOT NULL,
-  `timestamp` INT(255) NULL,
-  `lastclick` INT(255) NOT NULL,
+  `timestamp` INT(255) NULL DEFAULT NULL,
   `userid` INT(11) NOT NULL,
-  INDEX `user_idx` (`userid` ASC),
   PRIMARY KEY (`sid`, `userid`),
-  CONSTRAINT `user`
-    FOREIGN KEY (`userid`)
-    REFERENCES `blog`.`users` (`userid`)
-    ON DELETE NO ACTION
-    ON UPDATE NO ACTION)
+  INDEX `user_idx` (`userid` ASC))
 ENGINE = InnoDB
 DEFAULT CHARACTER SET = latin1;
 
