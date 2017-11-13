@@ -1,64 +1,72 @@
-.bodybody{
-  margin:0 auto;
-  padding:0 auto;
-  background:skyblue;
-}
-.container > div {
-  border: 2px solid rgb(233,171,88);
-  border-radius: 5px;
-  padding: 1em;
-  color: black;
-}.container {
-  display: grid;
-  grid-gap: 5px;
-  grid-template-areas: 
-  "header     header        header"
-  "sidebar    content      sidebar2"
-  "sidebar    content     sidebar2"
-  "sidebar    content      sidebar2"
-  
-  
-}
-.Top{
-  grid-area:header; 
-}
-.LoginArea{ 
-  float:right;
-  padding:0 auto;
-  margin:0 auto;  
-}
-.logButton{
-   display: inline-block;
-   padding:0 auto;
-   margin:0 auto;  
+html, body{
+  min-width:100%;
+  height:100%;
+  margin:0px;
+  padding:0px;
+  font-family: "Arial Black", Gadget, sans-serif;
 }
 
-.registerButton{
-  margin-left:10px;
-
-}
-.Left{
-  grid-area:sidebar;
-  background-color: rgb(238, 213, 171) 
+body{
+  display:table;
+  margin:0;
 }
 
-.Right{
-  grid-area:sidebar2;
-  background-color: rgb(238, 213, 171) 
-    
+h1{
+  font-size: 24pt;
 }
 
-.Middle{
-  grid-area:content;
-  overflow-x: hidden;
-  overflow-y:scroll;
-  background-color: thistle;
-  
+.container{
+  min-width: 100%;
+  height:100%;
+  min-height:100%;
 }
 
+.form-signin{
+  vertical-align: middle;
+  width:100%;
+  margin-bottom:80px;
+}
 
-.blogName{
-  color: black;
-  font-size:30px;
-  font-family: monospace;
+.form-register{
+  vertical-align: middle;
+  width:100%;
+}
+
+.box{
+  border:1px red dotted;
+}
+
+.leftpane {
+    width: 25%;
+    height: 100%;
+    float: left;
+    padding:50px;
+    background:url('bg.png');
+    border: 5px solid white;
+}
+
+.middlepane {
+    width: 50%;
+    height: 100%;
+    float: left;
+    padding:50px;
+    background-image: linear-gradient(180deg, #b1f6ca, #ebfdd5);
+    border: 5px solid white;
+}
+
+.rightpane {
+  width: 25%;
+  height: 100%;
+  position: relative;
+  float: right;
+  padding:50px;
+  background:url('bg.png');
+  border: 5px solid white;
+}
+
+.toppane {
+  width: 100%;
+  height: 200px;
+  border: 5px solid white;
+  background:url('bg.png');
 }
