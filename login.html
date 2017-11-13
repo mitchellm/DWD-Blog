@@ -34,9 +34,9 @@
   <div class="panel-group" id="accordion">
     <div class="panel panel-default">
       <div class="panel-heading">
-        <h4 class="panel-title">
+        <button class="btn btn-danger btn-block"
           <a data-toggle="collapse" data-parent="#accordion" href="#collapse1">Friends</a>
-        </h4>
+        </button>
       </div>
       <div id="collapse1" class="panel-collapse collapse in">
         <div class="panel-body">Friend1</br>Friend2</br>Friend3</br></div>
@@ -44,9 +44,9 @@
     </div>
     <div class="panel panel-default">
       <div class="panel-heading">
-        <h4 class="panel-title">
+        <button class="btn btn-danger btn-block"
           <a data-toggle="collapse" data-parent="#accordion" href="#collapse2">Friend Requests</a>
-        </h4>
+        </button>
       </div>
       <div id="collapse2" class="panel-collapse collapse">
         <div class="panel-body">Request1</br>Request2</br>Request3</br></div>
@@ -97,7 +97,42 @@
 
         <button type="submit" class="btn btn-danger btn-block">Sign In</button>
       </form>
+	  
+	  <label class="signup" data-toggle="modal" data-target="#register">Don't have an account? Sign up now!
+	  </label>
+	  
+	  <div id="register" class="modal fade" role="dialog">
+		<div class="modal-dialog">
 
+    <!-- Modal content-->
+    <div class="modal-content">
+	  <div class="modal-header">
+        <h4 class="modal-title">Register</h4>
+      </div>
+      <div class="modal-body">
+        <p>
+          <label class="sr-only">Email address</label>
+          <input type="email" placeholder="Email address" class="form-control" required>
+        </p>
+		<p>
+          <label class="sr-only">Password</label>
+          <input type="password" placeholder="Password" class="form-control" required>
+        </p>
+		<p>
+          <label class="sr-only">Confirm Password</label>
+          <input type="password" placeholder="Confirm Password" class="form-control" required>
+        </p>
+		
+      </div>
+      <div class="modal-footer">
+        <button type="submit" class="btn btn-danger btn-block">Register</button>
+      </div>
+    </div>
+
+  </div>
+</div>
+	  
+<!--
       <form class="form-register">
         <h1 class="text-center">Register</h1>
         <p>
@@ -120,7 +155,7 @@
 
       </div>
       </div>
-
+-->
 
     </div>
 

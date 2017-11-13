@@ -24,7 +24,16 @@ h1{
 .form-signin{
   vertical-align: middle;
   width:100%;
-  margin-bottom:80px;
+  margin-bottom:30px;
+}
+
+.signup{
+  color: #DC3546;
+}
+
+.signup:hover{
+  color: blue;
+  cursor: pointer;
 }
 
 .form-register{
@@ -32,8 +41,21 @@ h1{
   width:100%;
 }
 
-.box{
-  border:1px red dotted;
+.btn{
+  margin-top:10px;
+  margin-bottom:10px;
+}
+
+.btn:hover{
+  cursor: pointer;
+}
+
+.modal-title{
+  margin: 0 auto;
+}
+
+.modal-backdrop{
+  background-color: black;	
 }
 
 .leftpane {
