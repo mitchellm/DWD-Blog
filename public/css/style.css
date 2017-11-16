@@ -15,6 +15,10 @@ h1{
   font-size: 24pt;
 }
 
+h4{
+  padding-left:175px;
+}
+
 ul{
   padding-left:20px;
 }
@@ -52,10 +56,6 @@ ul{
 
 .btn:hover{
   cursor: pointer;
-}
-
-.modal-title{
-  margin: 0 auto;
 }
 
 .modal-backdrop{
