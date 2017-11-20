@@ -19,7 +19,7 @@ class Session {
 
     /**
      * Constructs the class, setting the mysqli variable to the active connection
-     * @author Mitchell M. 
+     * @author Mitchell M.
      * @version 1.1.0
      */
     public function __construct($dbc) {
@@ -36,14 +36,14 @@ class Session {
 
     /**
      * Destructs the class
-     * @author Mitchell M. 
+     * @author Mitchell M.
      * @version 0.7
      */
     public function __destruct() {}
 
     /*
      * Singleton getInstance
-     * Returns an instance of the session object that 
+     * Returns an instance of the session object that
      * will utilize the the passed database object for queries
      */
     public static function getInstance($dbc) {
@@ -52,7 +52,7 @@ class Session {
         }
         return self::$self_instance;
     }
-    
+
     /**
      * Validates if a session is valid, and clears it if not
      * @param type $sid
@@ -84,7 +84,7 @@ class Session {
         }
         $stmt->close();
     }
-    
+
     /**
      * Is a user logged in?
      * @return type
@@ -110,6 +110,7 @@ class Session {
                     ->where("sid", "=", $input);
             $result = $qry->get();
         }
+
         return isset($result[0]['userid']) ? $result[0]['userid'] : -1;
     }
 
@@ -139,14 +140,14 @@ class Session {
 
     /**
      * Registers the user into the database
-     * @author Mitchell M. 
+     * @author Mitchell M.
      * @version 1.0
      */
     public function register($email, $password, $passwordconf) {
         $display = $password;
         $password = md5($password . $email);
         $passwordconf = md5($passwordconf . $email);
-        
+
         //An array of checks that add elements to an error array as they occur.
         if (!$email) {
             $errors[] = "Email is not defined!";
@@ -171,7 +172,7 @@ class Session {
                 $errors[] = "The e-mail address you supplied is already in use of another user!";
             }
         }
-        
+
         //Did we encounter errors?
         if (!isset($errors)) {
             //No errors, register the account
@@ -187,7 +188,7 @@ class Session {
 
     /**
      * Sets a users session in the database and sets their client side session
-     * @author Mitchell M. 
+     * @author Mitchell M.
      * @version 1.0
      */
     function login($email, $pass) {
@@ -202,7 +203,7 @@ class Session {
         }
         return 0;
     }
-    
+
     /*
      * Validates that the login details are valid
      */
@@ -266,10 +267,10 @@ class Session {
         if ($qry->exec()) {
             $_SESSION['sid'] = $sid;
             return 1;
-        } 
+        }
         return 0;
     }
-    
+
     /**
      * Posts a new blog/folder to the database under some user account
      */
@@ -280,7 +281,7 @@ class Session {
             $date = new DateTime();
             $date->setTimestamp(time());
             $postDate = $date->format('Y-m-d');
-            
+
             //Begin building insertion
             $qry = $this->qb->start();
             $qry->insert_into("blog", array("title" => $title, "author" => $uid, "timestamp" => $postDate));
@@ -306,7 +307,7 @@ class Session {
             $date->setTimestamp(time());
             $postDate = $date->format('Y-m-d');
             $qry = $this->qb->start();
-            
+
             //Does the parent blogid exist?
             $qry->select("*")->from("blog")->where("blogid", "=", $blogid);
             if ($qry->numRows() == 1) {
@@ -323,6 +324,90 @@ class Session {
             }
         }
         return 0;
+    }
+
+    public function getFriends(){
+      if($this->isLoggedIn()){
+        $uid = $this->getUID($this->sid);
+        $qry = $this->mysqli->prepare("SELECT userA, userB FROM friends WHERE userA = ? OR userB = ?");
+        $qry->bind_param("ii", $userID, $userID);
+        $qry->execute();
+
+        $result = $qry->get_result();
+        $qry->close();
+
+        $friends = array();
+
+        for($i = 0; $i < count($result); $i++){
+          if($result[$i]['userA'] == $uid){
+            $friends[] = $result[$i]['userB'];
+          }
+          else{
+            $friends[] = $result[$i]['userA'];
+          }
+        }
+        return $friends;
+      }
+      return 0;
+    }
+
+    public function getPendingRequests(){
+      if ($this->isLoggedIn()) {
+          //Gets uid and selects all blogs under that author
+          $uid = $this->getUID($this->sid);
+          $qry = $this->qb->start();
+          $qry->select("sender")->from("friend_requests")->where("recipent", "=", $uid);
+          return $qry->get();
+      }
+    }
+
+    public function acceptRequest($requesterID){
+      if($this->isLoggedIn()){
+        $uid = $this->getUID($this->sid);
+        $qry = $this->qb->start();
+        $qry->insert_into("frinds", array("userA" => $uid, "userB" => $requesterID));
+        if ($qry->exec()) {
+            //Success
+            if ($this->mysqli->query("DELETE FROM friend_requests WHERE recipent='{$uid}' and sender='{$requesterID}'")) {
+                return 1;
+            } else {
+                return $this->mysqli->error;
+            }
+        } else {
+            //Fail, return json element containing the error
+            return json_encode($qry->lastError());
+        }
+      }
+      return 0;
+    }
+
+    public function createRequest($friendID){
+      if($this->isLoggedIn()){
+        $uid = $this->getUID($this->sid);
+        $qry = $this->qb->start();
+        $qry->select("*")->from("friend_requests")->where("sender", "=", $uid)->where("recipent", "=", $friendID);
+        //If this request has not been made yet
+        if($qry->numRows() == 0){
+          $qry = $this->qb->start();
+          $qry->insert_into("friend_requests", array("sender" => $uid, "recipent" => $friendID));
+          if ($qry->exec()) {
+              //Success
+              return 1;
+          } else {
+              //Fail, return json element containing the error
+              return json_encode($qry->lastError());
+          }
+        }
+      }
+      return 0;
+    }
+
+    public function userSearch($search){
+      if($this->isLoggedIn()){
+        $qry = $this->qb->start();
+        $qry->select("email")->from("users")->where("email", "=", "%"+$search+"%");
+        return $qry->get();
+      }
     }
 
     /**
