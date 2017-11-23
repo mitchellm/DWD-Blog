@@ -27,7 +27,9 @@ $(function () {
                         //API returned 1, ALL GOOD USER DETAILS CORRECT...
 //                        label.html("You are now logged in to your account with email " + email + "!");
 //                       logout.html("slow");
-                        $("a#logoutButton").fadeIn("slow");
+                        $("a#logoutButton").fadeIn("slow", function () {
+                            $("div#notice").fadeIn("slow");
+                        });
                     } else {
                         //API DIDNT RETURN 1, BAD LOGIN
                         loginArea.fadeIn("slow", function () {
@@ -100,9 +102,12 @@ $(function () {
             data: 'request=logout&r=t',
             url: api + 'index.php',
             async: true,
-            success: function (response) {
-                loginArea.fadeIn("slow");
-                $("a#logoutButton").fadeOut("slow");
+            success: function () {
+                $("div#notice").fadeOut("slow", function () {
+                    loginArea.fadeIn("slow", function () {
+                        $("a#logoutButton").fadeOut("slow");
+                    });
+                });
             },
             error: function () {
                 alert("Error with logout!");

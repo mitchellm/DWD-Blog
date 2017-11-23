@@ -16,9 +16,11 @@ $(function () {
         success: function (response) {
             //If api returns 1
             if (response == 1) {
-                
+
                 $("div#loginPanel").fadeOut("slow", function () {
-                    logoutButton.fadeIn("fast");
+                    logoutButton.fadeIn("fast", function () {
+                        $("div#notice").fadeIn("slow");
+                    });
                 });
             }
             //Otherwise do nothing

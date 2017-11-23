@@ -371,7 +371,6 @@ class Session {
             $qry = $this->mysqli->query("SELECT * FROM `friend_requests` WHERE `sender` = {$requesterID}");
             if ($qry->num_rows > 0) {
                 //Success
-                echo "DELETE FROM friend_requests WHERE sender='{$requesterID}' and recipent='{$uid}'";
                 $del = $this->mysqli->query("DELETE FROM friend_requests WHERE sender='{$requesterID}' and recipent='{$uid}'");
                 if ($del) {
                     $insert = $this->qb->start();
@@ -418,6 +417,16 @@ class Session {
             return $qry->get();
         }
     }
+    
+    public function lookupUsername($userid) { 
+        $stmt = $this->mysqli->prepare("SELECT `email` FROM `users` WHERE `userid` = ?");
+        $stmt->bind_param("i", $userid);
+        $stmt->bind_result($email);
+        $stmt->execute();
+        while($stmt->fetch()) {
+            return $email;
+        }
+    }
 
     /**
      * Pulls an array of the blogs for the logged in user
@@ -428,9 +437,28 @@ class Session {
             //Gets uid and selects all blogs under that author
             $uid = $this->getUID($this->sid);
             $qry = $this->qb->start();
-            $qry->select(array("title", "blogid"))->from("blog")->where("author", "=", $uid);
-            return $qry->get();
+            $qry->select(array("title", "blogid", "author"))->from("blog")->where("author", "=", $uid);
+            $blogs = $qry->get();
+            return json_encode($blogs);
         }
+    }
+
+    public function getLatestEntry() {
+        $stmt = $this->mysqli->query("SELECT `title`, `blogid`, `author`, `content` FROM `blog` ORDER BY blogid DESC");
+        $blog = $stmt->fetch_assoc();
+        $blog['author'] = $this->lookupUsername($blog['author']);
+        return $blog;
+    }
+
+    /**
+     * Pulls an array of the blogs for the logged in user
+     * @return type
+     */
+    public function getBlogsByUID($uid) {
+        //Gets uid and selects all blogs under that author
+        $qry = $this->qb->start();
+        $qry->select(array("title", "blogid"))->from("blog")->where("author", "=", $uid);
+        return $qry->get();
     }
 
     /**
