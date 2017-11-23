@@ -4,11 +4,6 @@
     <head>
         <?php
         /**
-         * @package DWD-Blog
-         * @author Mitchell M.
-         * @version 1.0.0
-         */
-        /**
          * Loading all the required classes/configuration files first
          */
         require_once(__DIR__ . '/api/config/global.php');
@@ -53,7 +48,7 @@
                         </li>
 
                         <li class="nav-item">
-                            <a class="nav-link" href="profile.html">Profile</a>
+                            <a class="nav-link" href="profile.php">Profile</a>
                         </li>
                         <li class="nav-item">
                             <a id="logoutButton" class="nav-link" href="#" style="display:none;">Logout</a>

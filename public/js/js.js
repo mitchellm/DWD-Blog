@@ -23,7 +23,7 @@ $(function () {
                 url: api + 'index.php',
                 async: true,
                 success: function (response) {
-                    if (response === 1) {
+                    if (response == 1) {
                         //API returned 1, ALL GOOD USER DETAILS CORRECT...
 //                        label.html("You are now logged in to your account with email " + email + "!");
 //                       logout.html("slow");
