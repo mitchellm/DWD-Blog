@@ -1,23 +1,19 @@
 $(function () {
 //    // Selecting the elements that are frequently accessed and the api path
     var api = "./api/";
-//    var label = $("label#info");
-//    var logout = $("input#logout");
-//    label.hide();
-//    logout.hide();
-//
+    var loginArea = $("div#loginPanel");
     /**
      * Binds an event listener on the loginForm, captures the entered inputs on submit and fires this function
      */
-    
-    
+
+
     $("form#loginForm").on("submit", function (e) {
         e.preventDefault()
         var email = $("input#loginemail").val();
         var password = $("input#loginpass").val();
         //Fades out the login form, and calls a function that adds a "in progress" response to the page 
         //once the form is faded it makes an ajax call to determine if login is correct
-        $(this).fadeOut("slow", function () {
+        loginArea.fadeOut("slow", function () {
 //            label.html("Submitting your login request...");
 //            label.fadeIn("slow");
             //Ajax call to verify login details
@@ -31,11 +27,12 @@ $(function () {
                         //API returned 1, ALL GOOD USER DETAILS CORRECT...
 //                        label.html("You are now logged in to your account with email " + email + "!");
 //                       logout.html("slow");
-                         alert("LOGIN DETAILS MATCHED DB!");
+                        $("a#logoutButton").fadeIn("slow");
                     } else {
                         //API DIDNT RETURN 1, BAD LOGIN
-//                        label.html("Invalid login details!");
-                         alert("LOGIN DETAILS DIDNT MATCH DB!");
+                        loginArea.fadeIn("slow", function () {
+                            $("a#logoutButton").fadeIn("slow");
+                        });
                     }
                     //Fades in the response label, then when that completes it 
                     //changes the html based on success or fail of login.
@@ -66,7 +63,7 @@ $(function () {
         var email = $(this).find('input#regemail').val();
         var password = $(this).find('input#regpassword').val();
         var passwordconf = $(this).find('input#regpasswordconf').val();
-        
+
         //Fades out the register form, and calls a function that adds a "in progress" response to the page 
         //once the form is faded it makes an ajax call to determine if register info is valid
 //        label.html("Submitting your login request...");
@@ -95,29 +92,25 @@ $(function () {
      * Binds an event listener on the logout button, captures the entered inputs on submit and fires this function
      */
 
-//    $('form#logout').submit(function (e) {
-//        e.preventDefault();
-//        //Sends api request to logout and changes the page, impossible for logout to fail so no conditional
-//        $.ajax({
-//            type: 'POST',
-//            data: 'request=logout&r=t',
-//            url: api + 'index.php',
-//            async: true,
-//            success: function (response) {
-//                label.fadeOut("fast", function () {
-//                    logout.fadeOut("fast", function () {
-//                        $("form#loginForm").fadeIn("fast");
-//                        $("form#registerForm").fadeIn("fast");
-//                    });
-//                });
-//            },
-//            error: function () {
-//                alert("Error with logout!");
-//            }
-//        });
+    $('a#logoutButton').on('click', function (e) {
+        e.preventDefault();
+        //Sends api request to logout and changes the page, impossible for logout to fail so no conditional
+        $.ajax({
+            type: 'POST',
+            data: 'request=logout&r=t',
+            url: api + 'index.php',
+            async: true,
+            success: function (response) {
+                loginArea.fadeIn("slow");
+                $("a#logoutButton").fadeOut("slow");
+            },
+            error: function () {
+                alert("Error with logout!");
+            }
+        });
 //        clearLogin();
 //        clearRegistration();
-//    });
+    });
 //
 //    function clearRegistration() {
 //        $("input#regpasswordconf").val("");

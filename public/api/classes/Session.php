@@ -39,13 +39,16 @@ class Session {
      * @author Mitchell M.
      * @version 0.7
      */
-    public function __destruct() {}
+    public function __destruct() {
+        
+    }
 
     /*
      * Singleton getInstance
      * Returns an instance of the session object that
      * will utilize the the passed database object for queries
      */
+
     public static function getInstance($dbc) {
         if (!self::$self_instance) {
             self::$self_instance = new Session($dbc);
@@ -207,6 +210,7 @@ class Session {
     /*
      * Validates that the login details are valid
      */
+
     function userExists($email, $password) {
         $email = htmlspecialchars(mysqli_real_escape_string($this->mysqli, $email));
         $pass = md5($password . $email);
@@ -222,6 +226,7 @@ class Session {
     /*
      * Manages sessions and prevents more than one session per user
      */
+
     public function handleSID($userid) {
         //Does a session already exist for this userID?
         if ($this->exists($userid)) {
@@ -326,88 +331,92 @@ class Session {
         return 0;
     }
 
-    public function getFriends(){
-      if($this->isLoggedIn()){
-        $uid = $this->getUID($this->sid);
-        $qry = $this->mysqli->prepare("SELECT userA, userB FROM friends WHERE userA = ? OR userB = ?");
-        $qry->bind_param("ii", $userID, $userID);
-        $qry->execute();
+    public function getFriends() {
+        if ($this->isLoggedIn()) {
+            $uid = $this->getUID($this->sid);
+            $qry = $this->mysqli->prepare("SELECT userA, userB FROM friends WHERE userA = ? OR userB = ?");
+            $qry->bind_param("ii", $userID, $userID);
+            $qry->execute();
 
-        $result = $qry->get_result();
-        $qry->close();
+            $result = $qry->get_result();
+            $qry->close();
 
-        $friends = array();
+            $friends = array();
 
-        for($i = 0; $i < count($result); $i++){
-          if($result[$i]['userA'] == $uid){
-            $friends[] = $result[$i]['userB'];
-          }
-          else{
-            $friends[] = $result[$i]['userA'];
-          }
-        }
-        return $friends;
-      }
-      return 0;
-    }
-
-    public function getPendingRequests(){
-      if ($this->isLoggedIn()) {
-          //Gets uid and selects all blogs under that author
-          $uid = $this->getUID($this->sid);
-          $qry = $this->qb->start();
-          $qry->select("sender")->from("friend_requests")->where("recipent", "=", $uid);
-          return $qry->get();
-      }
-    }
-
-    public function acceptRequest($requesterID){
-      if($this->isLoggedIn()){
-        $uid = $this->getUID($this->sid);
-        $qry = $this->qb->start();
-        $qry->insert_into("frinds", array("userA" => $uid, "userB" => $requesterID));
-        if ($qry->exec()) {
-            //Success
-            if ($this->mysqli->query("DELETE FROM friend_requests WHERE recipent='{$uid}' and sender='{$requesterID}'")) {
-                return 1;
-            } else {
-                return $this->mysqli->error;
+            for ($i = 0; $i < count($result); $i++) {
+                if ($result[$i]['userA'] == $uid) {
+                    $friends[] = $result[$i]['userB'];
+                } else {
+                    $friends[] = $result[$i]['userA'];
+                }
             }
-        } else {
-            //Fail, return json element containing the error
-            return json_encode($qry->lastError());
+            return $friends;
         }
-      }
-      return 0;
+        return 0;
     }
 
-    public function createRequest($friendID){
-      if($this->isLoggedIn()){
-        $uid = $this->getUID($this->sid);
-        $qry = $this->qb->start();
-        $qry->select("*")->from("friend_requests")->where("sender", "=", $uid)->where("recipent", "=", $friendID);
-        //If this request has not been made yet
-        if($qry->numRows() == 0){
-          $qry = $this->qb->start();
-          $qry->insert_into("friend_requests", array("sender" => $uid, "recipent" => $friendID));
-          if ($qry->exec()) {
-              //Success
-              return 1;
-          } else {
-              //Fail, return json element containing the error
-              return json_encode($qry->lastError());
-          }
+    public function getPendingRequests() {
+        if ($this->isLoggedIn()) {
+            //Gets uid and selects all blogs under that author
+            $uid = $this->getUID($this->sid);
+            $qry = $this->qb->start();
+            $qry->select("sender")->from("friend_requests")->where("recipent", "=", $uid);
+            return $qry->get();
         }
-      }
-      return 0;
     }
 
-    public function userSearch($search){
-      if($this->isLoggedIn()){
-        $qry = $this->qb->start();
-        $qry->select("email")->from("users")->where("email", "=", "%"+$search+"%");
-        return $qry->get();
-      }
+    public function acceptRequest($requesterID) {
+        if ($this->isLoggedIn()) {
+            $uid = $this->getUID($this->sid);
+            $qry = $this->mysqli->query("SELECT * FROM `friend_requests` WHERE `sender` = {$requesterID}");
+            if ($qry->num_rows > 0) {
+                //Success
+                echo "DELETE FROM friend_requests WHERE sender='{$requesterID}' and recipent='{$uid}'";
+                $del = $this->mysqli->query("DELETE FROM friend_requests WHERE sender='{$requesterID}' and recipent='{$uid}'");
+                if ($del) {
+                    $insert = $this->qb->start();
+                    $insert->insert_into("friends", array("userA" => $uid, "userB" => $requesterID));
+                    if ($insert->exec()) {
+                        return 1;
+                    }
+                } else {
+                    return $this->mysqli->error;
+                }
+            } else {
+                //Fail, return json element containing the error
+                return json_encode($qry->lastError());
+            }
+        }
+        return 0;
+    }
+
+    public function createRequest($friendID) {
+        if ($this->isLoggedIn()) {
+            $uid = $this->getUID($this->sid);
+            $qry = $this->qb->start();
+            $qry->select("*")->from("friend_requests")->where("sender", "=", $uid)->where("recipent", "=", $friendID);
+            //If this request has not been made yet
+            if ($qry->numRows() == 0) {
+                $qry = $this->qb->start();
+                $qry->insert_into("friend_requests", array("sender" => $uid, "recipent" => $friendID));
+                if ($qry->exec()) {
+                    //Success
+                    return 1;
+                } else {
+                    //Fail, return json element containing the error
+                    return json_encode($qry->lastError());
+                }
+            }
+        }
+        return 0;
+    }
+
+    public function userSearch($search) {
+        if ($this->isLoggedIn()) {
+            $qry = $this->qb->start();
+            $qry->select("email")->from("users")->where("email", "=", "%" + $search + "%");
+            return $qry->get();
+        }
     }
 
     /**
