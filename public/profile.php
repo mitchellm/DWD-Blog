@@ -89,10 +89,23 @@
                 <div align="center">  
                     <h1>Archive</h1>
                     <button type="button" class="btn btn-danger btn-block" data-toggle="collapse" data-target="#prev">Previous Entries</button>
-                    <?php
+                    <div align="left">
+                    <div id="prev" class="collapse">
+
+
+                    <!--example layout for archived posts-->
+                    
+                    <label class="bloglist" data-toggle="collapse" data-target="#blogtitle">Date</label>
+                    <div id="blogtitle" class="collapse"><label class="title">Post 1</label></br><label class="title">Post 2</label></br><label class="title">Post 3</label></br></div></br>
+                    <label class="bloglist" data-toggle="collapse" data-target="#blogtitle2">Date</label>
+                    <div id="blogtitle2" class="collapse"><label class="title">Post 1</label></br><label class="title">Post 2</label></br><label class="title">Post 3</label></br></div></br>
+                    <label class="bloglist" data-toggle="collapse" data-target="#blogtitle3">Date</label>
+                    <div id="blogtitle3" class="collapse"><label class="title">Post 1</label></br><label class="title">Post 2</label></br><label class="title">Post 3</label></br></div></br>
+
+					<?php
                     $blogs = $session->getBlogs();
                     ?>
-                    <div id="prev" class="collapse">
+
                         <?php
                         if (count($blogs) > 0) {
                             foreach ($blogs as $key => $val) {
@@ -104,6 +117,8 @@
                             echo "No blogs posted! Why not post a new one?";
                         }
                         ?>
+                	</div>
+                	</div>
                     </div>                  
                     <button type="button" class="btn btn-danger btn-block" data-toggle="modal" data-target="#newpost">New Blog Entry</button>
                     <div id="newpost" class="modal fade" role="dialog">
@@ -128,6 +143,8 @@
 
                             </div>
                         </div>
+
+                    </div>
 
 
                         <!-- Optional JavaScript -->

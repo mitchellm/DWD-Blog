@@ -45,6 +45,24 @@ textarea{
   cursor: pointer;
 }
 
+.bloglist{
+  color: #DC3546;
+}
+
+.bloglist:hover{
+  color: blue;
+  cursor: pointer;
+}
+
+.title{
+  color: #DC3546;
+}
+
+.title:hover{
+  color: blue;
+  cursor: pointer;
+}
+
 .form-register{
   vertical-align: middle;
   width:100%;
