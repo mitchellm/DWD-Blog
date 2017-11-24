@@ -35,7 +35,7 @@
         <!-- Bootstrap CSS -->
         <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-beta.2/css/bootstrap.min.css" integrity="sha384-PsH8R72JQ3SOdhVi3uxftmaW6Vc51MKb0q5P2rRUpPvrszuE4W1povHYgTpBfshb" crossorigin="anonymous">
         <link rel="stylesheet" type="text/css" href="css/style.css">
-
+		 <link rel="stylesheet" src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js">
     </head>
 
     <body>
@@ -81,6 +81,7 @@
                     }
                     ?>
                 </div>
+				
 
             </div>
 
@@ -89,9 +90,10 @@
                 <div align="center">  
                     <h1>Archive</h1>
                     <button type="button" class="btn btn-danger btn-block" data-toggle="collapse" data-target="#prev">Previous Entries</button>
-                    <?php
+                   
+				   <?php
                     $blogs = $session->getBlogs();
-                    ?>
+				 ?>
                     <div id="prev" class="collapse">
                         <?php
                         if (count($blogs) > 0) {
@@ -104,6 +106,10 @@
                             echo "No blogs posted! Why not post a new one?";
                         }
                         ?>
+						  <button type="button" class="btn btn-default btn-sm">
+								<span class="glyphicon glyphicon-trash"></span> Trash 
+							</button>
+					
                     </div>                  
                     <button type="button" class="btn btn-danger btn-block" data-toggle="modal" data-target="#newpost">New Blog Entry</button>
                     <div id="newpost" class="modal fade" role="dialog">
