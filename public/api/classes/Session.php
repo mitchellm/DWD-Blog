@@ -117,6 +117,16 @@ class Session {
         return isset($result[0]['userid']) ? $result[0]['userid'] : -1;
     }
 
+    function uid() {
+        $qry = $this->qb->start();
+        $qry->select("userid")
+                ->from("sessions")
+                ->where("sid", "=", $this->sid);
+        $result = $qry->get();
+
+        return isset($result[0]['userid']) ? $result[0]['userid'] : -1;
+    }
+
     /**
      * Clear session based on UserID
      * @param type $userid
@@ -279,53 +289,23 @@ class Session {
     /**
      * Posts a new blog/folder to the database under some user account
      */
-    public function createBlog($title) {
-        if ($this->isLoggedIn()) {
-            //Gets the metadata for the blog
-            $uid = $this->getUID($this->sid);
-            $date = new DateTime();
-            $date->setTimestamp(time());
-            $postDate = $date->format('Y-m-d');
-
-            //Begin building insertion
-            $qry = $this->qb->start();
-            $qry->insert_into("blog", array("title" => $title, "author" => $uid, "timestamp" => $postDate));
-            if ($qry->exec()) {
-                //Successful insert
-                return 1;
-            } else {
-                //Returns a json element containing the error
-                return json_encode($qry->lastError());
-            }
-        }
-        return 0;
-    }
-
-    /**
-     * Posts a new blog/folder to the database under some user account
-     */
-    public function createEntry($title, $content, $blogid) {
+    public function createEntry($title, $content) {
         if ($this->isLoggedIn()) {
             //Gets the metadata for the entry
             $uid = $this->getUID($this->sid);
             $date = new DateTime();
             $date->setTimestamp(time());
             $postDate = $date->format('Y-m-d');
+            $author = $this->uid();
+            //Parent blog exists, insert the blog entry
             $qry = $this->qb->start();
-
-            //Does the parent blogid exist?
-            $qry->select("*")->from("blog")->where("blogid", "=", $blogid);
-            if ($qry->numRows() == 1) {
-                //Parent blog exists, insert the blog entry
-                $qry = $this->qb->start();
-                $qry->insert_into("blog_entry", array("title" => $title, "blogid" => $blogid, "timestamp" => $postDate, "content" => $content));
-                if ($qry->exec()) {
-                    //Success
-                    return 1;
-                } else {
-                    //Fail, return json element containing the error
-                    return json_encode($qry->lastError());
-                }
+            $qry->insert_into("blog", array("title" => $title, "timestamp" => $postDate, "content" => $content, "author" => $author));
+            if ($qry->exec()) {
+                //Success
+                return 1;
+            } else {
+                //Fail, return json element containing the error
+                return json_encode($qry->lastError());
             }
         }
         return 0;
@@ -417,13 +397,13 @@ class Session {
             return $qry->get();
         }
     }
-    
-    public function lookupUsername($userid) { 
+
+    public function lookupUsername($userid) {
         $stmt = $this->mysqli->prepare("SELECT `email` FROM `users` WHERE `userid` = ?");
         $stmt->bind_param("i", $userid);
         $stmt->bind_result($email);
         $stmt->execute();
-        while($stmt->fetch()) {
+        while ($stmt->fetch()) {
             return $email;
         }
     }
@@ -439,7 +419,7 @@ class Session {
             $qry = $this->qb->start();
             $qry->select(array("title", "blogid", "author"))->from("blog")->where("author", "=", $uid);
             $blogs = $qry->get();
-            return json_encode($blogs);
+            return $blogs;
         }
     }
 
@@ -448,6 +428,23 @@ class Session {
         $blog = $stmt->fetch_assoc();
         $blog['author'] = $this->lookupUsername($blog['author']);
         return $blog;
+    }
+
+    public function getUserLatestEntry($userid) {
+        if (intval($userid)) {
+            $stmt = $this->mysqli->prepare("SELECT `title`, `blogid`, `author`, `content` FROM `blog` WHERE `author` = ? ORDER BY blogid DESC LIMIT 1");
+            $stmt->bind_param("i", $userid);
+            $stmt->bind_result($title, $blogid, $author, $content);
+            $stmt->execute();
+            $stmt->store_result();
+            if ($stmt->num_rows > 0) {
+                while ($stmt->fetch()) {
+                    $entry = array('title' => $title, 'author' => $this->lookupUsername($author), 'blogid' => $blogid, 'content' => $content);
+                }
+                return $entry;
+            }
+        }
+        return null;
     }
 
     /**

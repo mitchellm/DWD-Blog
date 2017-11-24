@@ -6,6 +6,61 @@ $(function () {
      * Binds an event listener on the loginForm, captures the entered inputs on submit and fires this function
      */
 
+    function reloadArchive() {
+        $.ajax({
+            type: 'POST',
+            data: 'request=getArchive',
+            url: api + 'index.php',
+            async: true,
+            success: function (data) {
+                $("div#prev").html(data);
+            },
+            error: function (exception) {
+                console.log('Exception:' + exception);
+            }
+        });
+    }
+
+    $("form#newBlog").on("submit", function (e) {
+        e.preventDefault();
+        var title = $("input#title").val();
+        var content = $("textarea#content").val();
+        $.ajax({
+            type: 'POST',
+            data: 'request=createEntry&title=' + title + '&content=' + content,
+            url: api + 'index.php',
+            async: true,
+            success: function (response) {
+                if (response == 1) {
+                    //API returned 1, ALL GOOD USER DETAILS CORRECT...
+//                        label.html("You are now logged in to your account with email " + email + "!");
+//                       logout.html("slow");
+                    $("div#newpost").modal('hide');
+                    reloadArchive();
+                    $("div#prev").removeClass();
+                    $("div#prev").addClass('collapse');
+                    $("div#prev").addClass('show');
+                } else {
+                    alert("Failed, try again!");
+                }
+                //Fades in the response label, then when that completes it 
+                //changes the html based on success or fail of login.
+//                    label.fadeIn(5000, function () {
+//                        if (response == 1) {
+//                            logout.fadeIn("fast");
+//                            $("form#registerForm").fadeOut("slow");
+//                        } else {
+//                            label.fadeOut(5000, function () {
+//                                $("form#loginForm").fadeIn("slow");
+//                            });
+//                        }
+//                    });
+            },
+            error: function (exception) {
+                console.log('Exception:' + exception);
+            }
+        });
+    });
 
     $("form#loginForm").on("submit", function (e) {
         e.preventDefault()
