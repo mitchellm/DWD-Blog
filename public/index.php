@@ -73,7 +73,7 @@
                     <?php
                     $blog = $session->getLatestEntry();
                     ?>
-                    <h1><?=$blog['title']?></h1> by <?=$blog['author']?>
+                    <h1><?=$blog['title']?></h1> by <?=$blog['author']?><br />
                     <?=$blog['content']?>
 
                     <!--
