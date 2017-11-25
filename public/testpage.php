@@ -18,29 +18,9 @@ function __autoload($class_name) {
  */
 $db = Database::getConnection();
 $session = new Session($db);
+if(!$session->isLoggedIn()) {
+    $session->login("myname@gmail.com", "123123");
+}
+
+echo var_dump($session->deleteFriend(20));
 ?>
-<html>
-    <head>
-        <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
-        <script type="text/javascript">
-            $(document).ready(function () {
-                alert("HELLO");
-                $.ajax({
-                    type: 'POST',
-                    data: 'request=getBlogs',
-                    url: 'api/index.php',
-                    async: true,
-                    success: function (response) {
-                        alert(response);
-                    },
-                    error: function (exception) {
-                        console.log('Exception:' + exception);
-                    }
-                });
-            });
-        </script>
-    </head>
-    <div id="content">
-        content
-    </div>
-</html>

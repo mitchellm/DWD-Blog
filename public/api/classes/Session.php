@@ -2,7 +2,6 @@
 
 /**
  * Session control
- *
  * @category   Class
  * @package    classes.Session
  * @author     Mitchell M. <mm11096@georgiasouthern.edu>
@@ -312,22 +311,22 @@ class Session {
     }
 
     public function getFriends() {
+        $friends = array();
         if ($this->isLoggedIn()) {
             $uid = $this->getUID($this->sid);
-            $qry = $this->mysqli->prepare("SELECT userA, userB FROM friends WHERE userA = ? OR userB = ?");
-            $qry->bind_param("ii", $userID, $userID);
-            $qry->execute();
 
-            $result = $qry->get_result();
-            $qry->close();
-
-            $friends = array();
-
-            for ($i = 0; $i < count($result); $i++) {
-                if ($result[$i]['userA'] == $uid) {
-                    $friends[] = $result[$i]['userB'];
-                } else {
-                    $friends[] = $result[$i]['userA'];
+            $stmt = $this->mysqli->prepare("SELECT userA, userB FROM friends WHERE userA = ? OR userB = ?");
+            $stmt->bind_param("ii", $uid, $uid);
+            $stmt->bind_result($userA, $userB);
+            $stmt->execute();
+            $stmt->store_result();
+            if ($stmt->num_rows > 0) {
+                while ($stmt->fetch()) {
+                    if ($userA != $uid) {
+                        array_push($friends, $userA);
+                    } else if ($userB != $uid) {
+                        array_push($friends, $userB);
+                    }
                 }
             }
             return $friends;
@@ -337,12 +336,22 @@ class Session {
 
     public function getPendingRequests() {
         if ($this->isLoggedIn()) {
+            $pendingRequests = array();
             //Gets uid and selects all blogs under that author
             $uid = $this->getUID($this->sid);
-            $qry = $this->qb->start();
-            $qry->select("sender")->from("friend_requests")->where("recipent", "=", $uid);
-            return $qry->get();
+            $stmt = $this->mysqli->prepare("SELECT `sender` FROM `friend_requests` WHERE `recipent` = ?");
+            $stmt->bind_param("i", $uid);
+            $stmt->bind_result($sender);
+            $stmt->execute();
+            $stmt->store_result();
+            if ($stmt->num_rows > 0) {
+                while ($stmt->fetch()) {
+                    $pendingRequests[] = $sender;
+                }
+            }
+            return $pendingRequests;
         }
+        return 0;
     }
 
     public function acceptRequest($requesterID) {
@@ -363,7 +372,7 @@ class Session {
                 }
             } else {
                 //Fail, return json element containing the error
-                return json_encode($qry->lastError());
+                return json_encode($qry->error());
             }
         }
         return 0;
@@ -390,6 +399,46 @@ class Session {
         return 0;
     }
 
+    public function deleteFriendRequest($requesterID) {
+        if ($this->isLoggedIn()) {
+            $uid = $this->getUID($this->sid);
+            $qry = $this->mysqli->query("SELECT * FROM `friend_requests` WHERE `sender` = {$requesterID}");
+            if ($qry->num_rows > 0) {
+                //Success
+                $del = $this->mysqli->query("DELETE FROM friend_requests WHERE sender='{$requesterID}' and recipent='{$uid}'");
+                if ($del) {
+                    return 1;
+                } else {
+                    return $this->mysqli->error;
+                }
+            } else {
+                //Fail, return json element containing the error
+                return json_encode($qry->lastError());
+            }
+        }
+        return 0;
+    }
+
+    public function deleteFriend($friend) {
+        if ($this->isLoggedIn()) {
+            $uid = $this->getUID($this->sid);
+            $qry = $this->mysqli->query("SELECT * FROM `friends` WHERE (`userB` = '{$friend}' AND `userA` = '{$uid}') OR (`userA` = '{$friend}' AND `userB` = '{$uid}')");
+            if ($qry->num_rows > 0) {
+                //Success
+                $del = $this->mysqli->query("DELETE FROM friends WHERE (`userB` = '{$friend}' AND `userA` = '{$uid}') OR (`userA` = '{$friend}' AND `userB` = '{$uid}')");
+                if ($del) {
+                    return 1;
+                } else {
+                    return $this->mysqli->error;
+                }
+            } else {
+                //Fail, return json element containing the error
+                return json_encode($qry->error);
+            }
+        }
+        return 0;
+    }
+
     public function userSearch($search) {
         if ($this->isLoggedIn()) {
             $qry = $this->qb->start();
@@ -406,13 +455,14 @@ class Session {
         while ($stmt->fetch()) {
             return $email;
         }
+        return null;
     }
 
     /**
      * Pulls an array of the blogs for the logged in user
      * @return type
      */
-    public function getBlogs() {
+    public function getArchive() {
         if ($this->isLoggedIn()) {
             //Gets uid and selects all blogs under that author
             $uid = $this->getUID($this->sid);
@@ -451,11 +501,30 @@ class Session {
      * Pulls an array of the blogs for the logged in user
      * @return type
      */
-    public function getBlogsByUID($uid) {
+    public function getArchiveByUID($uid) {
         //Gets uid and selects all blogs under that author
         $qry = $this->qb->start();
         $qry->select(array("title", "blogid"))->from("blog")->where("author", "=", $uid);
         return $qry->get();
+    }
+
+    public function loadEntryByID($id) {
+        $entry = array();
+        $stmt = $this->mysqli->prepare("SELECT `title`, `author`, `content`, `timestamp` FROM `blog` WHERE `blogid` = ?");
+        $stmt->bind_param("i", $id);
+        $stmt->bind_result($title, $author, $content, $timestamp);
+        $stmt->execute();
+        $stmt->store_result();
+        if ($stmt->num_rows > 0) {
+            while ($stmt->fetch()) {
+                $entry['title'] = $title;
+                $entry['author'] = $author;
+                $entry['content'] = $content;
+                $entry['timestamp'] = $timestamp;
+            }
+            return $entry;
+        }
+        return 0;
     }
 
     /**

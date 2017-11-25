@@ -18,7 +18,7 @@
         $db = Database::getConnection();
         $session = new Session($db);
         ?>
-        
+
         <title>BlogArea Login</title>
 
 
@@ -73,8 +73,8 @@
                     <?php
                     $blog = $session->getLatestEntry();
                     ?>
-                    <h1><?=$blog['title']?></h1> by <?=$blog['author']?><br />
-                    <?=$blog['content']?>
+                    <h1><?= $blog['title'] ?></h1> by <?= $blog['author'] ?><br /><br />
+                    <?= $blog['content'] ?>
 
                     <!--
                     <h1>Featured Posts</h1>

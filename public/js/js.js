@@ -1,5 +1,5 @@
 $(function () {
-//    // Selecting the elements that are frequently accessed and the api path
+// Selecting the elements that are frequently accessed and the api path
     var api = "./api/";
     var loginArea = $("div#loginPanel");
     /**
@@ -170,6 +170,113 @@ $(function () {
         });
 //        clearLogin();
 //        clearRegistration();
+    });
+
+    $(document).on('click', 'a#remove', function (e) {
+        e.preventDefault();
+        var data = $(this).attr('friendid');
+        //Sends api request to logout and changes the page, impossible for logout to fail so no conditional
+        $.ajax({
+            type: 'POST',
+            data: 'request=removeFriend&friendID=' + data,
+            url: api + 'index.php',
+            async: true,
+            success: function () {
+                document.href = "profile.php";
+            },
+            error: function () {
+                alert("Error with logout!");
+            }
+        });
+    });
+
+    $(document).on('click', 'a#accept', function (e) {
+        e.preventDefault();
+        var data = $(this).attr('friendid');
+        //Sends api request to logout and changes the page, impossible for logout to fail so no conditional
+        $.ajax({
+            type: 'POST',
+            data: 'request=acceptRequest&friendID=' + data,
+            url: api + 'index.php',
+            async: true,
+            success: function () {
+                document.href = "profile.php";
+            },
+            error: function () {
+                alert("Error with logout!");
+            }
+        });
+    });
+
+    $(document).on('click', 'a#decline', function (e) {
+        e.preventDefault();
+        var data = $(this).attr('friendid');
+        //Sends api request to logout and changes the page, impossible for logout to fail so no conditional
+        $.ajax({
+            type: 'POST',
+            data: 'request=declineRequest&friendID=' + data,
+            url: api + 'index.php',
+            async: true,
+            success: function () {
+                document.href = "profile.php";
+            },
+            error: function () {
+                alert("Error with logout!");
+            }
+        });
+    });
+
+    $(document).on('click', 'a#openarchive', function (e) {
+        e.preventDefault();
+        var data = $(this).attr('friendid');
+        //Sends api request to logout and changes the page, impossible for logout to fail so no conditional
+        $.ajax({
+            type: 'POST',
+            data: 'request=getArchiveByUID&user=' + data,
+            url: api + 'index.php',
+            async: true,
+            success: function (data) {
+                $("div#prev").html(data);
+            },
+            error: function () {
+                alert("Error with logout!");
+            }
+        });
+    });
+
+    $(document).on('click', 'a#showblog', function (e) {
+        e.preventDefault();
+        var data = $(this).attr('blogid');
+        //Sends api request to logout and changes the page, impossible for logout to fail so no conditional
+        $.ajax({
+            type: 'POST',
+            data: 'request=loadEntryByID&blog=' + data,
+            url: api + 'index.php',
+            async: true,
+            success: function (data) {
+                $("div#content").html(data);
+            },
+            error: function () {
+                alert("Error with logout!");
+            }
+        });
+    });
+
+    $(document).on('click', 'a#reloadown', function (e) {
+        e.preventDefault();
+        //Sends api request to logout and changes the page, impossible for logout to fail so no conditional
+        $.ajax({
+            type: 'POST',
+            data: 'request=getArchive',
+            url: api + 'index.php',
+            async: true,
+            success: function (data) {
+                $("div#prev").html(data);
+            },
+            error: function () {
+                alert("Error with logout!");
+            }
+        });
     });
 //
 //    function clearRegistration() {

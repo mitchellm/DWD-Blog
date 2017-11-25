@@ -23,7 +23,9 @@ $session = new Session($db);
 foreach($_POST as $key => $val) { $$key = trim($val); }
 
 //List of valid requests that are handled
-$VALID_REQUESTS = array('login', 'register', 'checklogin', 'logout','createEntry','refreshBlogs','getBlogs','getArchive');
+$VALID_REQUESTS = array('login', 'register', 'checklogin', 'logout','createEntry',
+    'getBlogs','getArchive','removeFriend','acceptRequest','declineRequest','getArchiveByUID'
+    ,'loadEntryByID');
 
 //Validating the existance of server variable "HTTP_X_REQUESTED_WITH", if it exists it can verify that the call is ajax
 $httpXrequested = isset($_SERVER['HTTP_X_REQUESTED_WITH']);
@@ -44,7 +46,7 @@ if ($httpXrequested && ($isAjaxCall) && isset($request)) {
         //LOAD THE CONTENT OF THE REQUEST
         require_once($file);
     } else {
-        die("Request not found in host file-system OR not whitelisted. {$request}");
+        die("Request not found in host file-system OR not whitelisted. REQUEST=[{$request}]");
     }
 } else {
     //Build error message
