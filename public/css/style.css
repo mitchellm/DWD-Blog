@@ -23,7 +23,9 @@ textarea{
   width: 100%;
   height: 500px;
 }
-
+div.dateplacement{
+	color:red;
+}
 .container{
   min-width: 100%;
   height:100%;

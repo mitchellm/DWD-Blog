@@ -137,7 +137,7 @@
                     </a>
                     </div><!-- /carousel -->
                 </div>
-
+					<div class="dateplacement" style="color:red;position:absolute;bottom:0;" >hello date goes here </div><!-- here put the date maybe does this looks funky? --> 
             </div>
 
 
