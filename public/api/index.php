@@ -9,6 +9,9 @@
  * Loading all the required classes/configuration files first
  */
 require_once(__DIR__ . '/config/global.php');
+require_once (__DIR__ . '/../includes/blog.php');
+require_once (__DIR__ . '/../includes/archive.php');
+
 function __autoload($class_name) {
 	require_once(__DIR__ . '/classes/' . $class_name . '.php');	
 }

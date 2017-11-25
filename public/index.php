@@ -7,6 +7,7 @@
          * Loading all the required classes/configuration files first
          */
         require_once(__DIR__ . '/api/config/global.php');
+        require_once ('includes/blog.php');
 
         function __autoload($class_name) {
             require_once(__DIR__ . '/api/classes/' . $class_name . '.php');
@@ -20,8 +21,6 @@
         ?>
 
         <title>BlogArea Login</title>
-
-
 
         <!-- Bootstrap CSS -->
         <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-beta.2/css/bootstrap.min.css" integrity="sha384-PsH8R72JQ3SOdhVi3uxftmaW6Vc51MKb0q5P2rRUpPvrszuE4W1povHYgTpBfshb" crossorigin="anonymous">
@@ -72,9 +71,8 @@
                 <div align="center"> 
                     <?php
                     $blog = $session->getLatestEntry();
+                    renderBlog($blog['title'], $blog['author'], $blog['content']);
                     ?>
-                    <h1><?= $blog['title'] ?></h1> by <?= $blog['author'] ?><br /><br />
-                    <?= $blog['content'] ?>
 
                     <!--
                     <h1>Featured Posts</h1>
