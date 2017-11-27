@@ -55,6 +55,7 @@
                     <h2>Friends</h2>
                     <button type="button" class="btn btn-danger btn-block" data-toggle="collapse" data-target="#friend">Friend List</button>
                     <div id="friend" class="collapse">
+
                         <?php
                         $friends = $session->getFriends();
                         foreach ($friends as $friend) {
@@ -64,6 +65,7 @@
                     </div>
                     <button type="button" class="btn btn-danger btn-block" data-toggle="collapse" data-target="#request">Requests</button>
                     <div id="request" class="collapse">
+
                         <?php
                         $requests = $session->getPendingRequests();
                         foreach ($requests as $req) {
@@ -73,6 +75,13 @@
                             echo "You don't have any pending friend requests...";
                         }
                         ?>
+                    </div>
+                    <button type="button" class="btn btn-danger btn-block" data-toggle="collapse" data-target="#search">Search</button>
+                    <div id="search" class="collapse">
+                            <form class="search-container">
+                                <input type="text" id="search-bar" placeholder="Search">
+                                <a href="#"><img class="search-icon" src="http://www.endlessicons.com/wp-content/uploads/2012/12/search-icon.png"></a>
+                            </form>
                     </div>
                 </div>    
             </div>
@@ -94,8 +103,30 @@
             <div class="rightpane">
                 <div align="center">  
                     <h1>Archive</h1>
-                    <a href="#" id="reloadown">Reload own</a>
-                    <button type="button" class="btn btn-danger btn-block" data-toggle="collapse" data-target="#prev">Entries</button>
+
+                        <button type="button" class="btn btn-danger btn-block" data-toggle="modal" data-target="#newpost">New Blog Entry</button>
+                        <div id="newpost" class="modal fade" role="dialog">
+                            <div class="modal-dialog">
+                        <!-- Modal content-->
+                                <div class="modal-content">
+                                    <div class="modal-header">
+                                        <h4 class="modal-title">New Blog Entry</h4>
+                                        <button type="button" class="close" data-dismiss="modal">&times;</button>
+                                    </div>
+                                <div class="modal-body">
+                                    <form id="newBlog">
+                                        Title: <input type="text" name="title" id="title" style="margin-bottom:15px;" />
+                                        <textarea id="content" placeholder="Enter text here..." autofocus></textarea>
+                                        <div class="modal-footer">
+                                            <input type="submit" class="btn btn-danger btn-block" />
+                                        </div>
+                                    </form>
+                                </div>
+                                </div>
+                    </div>
+                </div>
+
+                    <button type="button" class="btn btn-danger btn-block" data-toggle="collapse" data-target="#prev">Past Entries</button>
                     <div align="left">
                         <div id="prev" class="collapse">
                             <?php
@@ -104,28 +135,10 @@
                             ?>
                         </div>
                     </div>
+                    <a href="#" id="reloadown" class="btn btn-danger btn-block" role="button">Reload Archive</a>
+
                 </div>                  
-                <button type="button" class="btn btn-danger btn-block" data-toggle="modal" data-target="#newpost">New Blog Entry</button>
-                <div id="newpost" class="modal fade" role="dialog">
-                    <div class="modal-dialog">
-                        <!-- Modal content-->
-                        <div class="modal-content">
-                            <div class="modal-header">
-                                <h4 class="modal-title">New Blog Entry</h4>
-                                <button type="button" class="close" data-dismiss="modal">&times;</button>
-                            </div>
-                            <div class="modal-body">
-                                <form id="newBlog">
-                                    Title: <input type="text" name="title" id="title" style="margin-bottom:15px;" />
-                                    <textarea id="content" placeholder="Enter text here..." autofocus></textarea>
-                                    <div class="modal-footer">
-                                        <input type="submit" class="btn btn-danger btn-block" />
-                                    </div>
-                                </form>
-                            </div>
-                        </div>
-                    </div>
-                </div>
+                
             </div>
 
         </div>
