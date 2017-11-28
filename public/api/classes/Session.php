@@ -473,10 +473,19 @@ class Session {
         }
     }
 
-    public function getLatestEntry() {
-        $stmt = $this->mysqli->query("SELECT `title`, `blogid`, `author`, `content` FROM `blog` ORDER BY blogid DESC");
-        $blog = $stmt->fetch_assoc();
-        $blog['author'] = $this->lookupUsername($blog['author']);
+    public function getNEntries($limit = 1) {
+        $entry = array();
+        $stmt = $this->mysqli->prepare("SELECT `title`, `blogid`, `author`, `content` FROM `blog` ORDER BY blogid DESC LIMIT ?");
+        $stmt->bind_result($title,$blogid,$author,$content);
+        $stmt->bind_param("i", $limit);
+        $stmt->execute();
+        $stmt->store_result();
+        if ($stmt->num_rows > 0) {
+            while ($stmt->fetch()) {
+                $entry[] = array('title' => $title, 'author' => $this->lookupUsername($author), 'blogid' => $blogid, 'content' => $content);
+            }
+            return $entry;
+        }
         return $blog;
     }
 

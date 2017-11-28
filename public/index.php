@@ -70,8 +70,14 @@
             <div class="middlepane">
                 <div align="center"> 
                     <?php
-                    $blog = $session->getLatestEntry();
-                    renderBlog($blog['title'], $blog['author'], $blog['content']);
+                    $entries = $session->getNEntries(5);
+                    for ($i = 0; $i < count($entries); $i++) {
+                        renderBlog($entries[$i]['title'], $entries[$i]['author'], $entries[$i]['content']);
+                        ?>
+                    <br />
+                    <hr style="blogsep" />
+                    <?php
+                    }
                     ?>
 
                     <!--

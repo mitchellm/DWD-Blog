@@ -11,6 +11,10 @@ body{
   margin:0;
 }
 
+hr.blogsep {
+	border-top: 3px double #8c8b8b;
+}
+
 h1{
   font-size: 24pt;
 }
