@@ -190,7 +190,7 @@ $(function () {
         });
     });
 
-    $(document).on('click', 'a#accept', function (e) {
+    $(document).on('click', 'button#accbutton', function (e) {
         e.preventDefault();
         var data = $(this).attr('friendid');
         //Sends api request to logout and changes the page, impossible for logout to fail so no conditional
@@ -208,7 +208,7 @@ $(function () {
         });
     });
 
-    $(document).on('click', 'a#decline', function (e) {
+    $(document).on('click', 'button#decbutton', function (e) {
         e.preventDefault();
         var data = $(this).attr('friendid');
         //Sends api request to logout and changes the page, impossible for logout to fail so no conditional
@@ -226,7 +226,7 @@ $(function () {
         });
     });
 
-    $(document).on('click', 'a#openarchive', function (e) {
+    $(document).on('click', 'h3#openarchive', function (e) {
         e.preventDefault();
         var data = $(this).attr('friendid');
         //Sends api request to logout and changes the page, impossible for logout to fail so no conditional

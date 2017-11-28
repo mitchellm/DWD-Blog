@@ -22,7 +22,7 @@
             $session->redirect("index.php");
         }
         ?>
-        
+
         <title>BlogArea Profile Page</title>
         <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
         <script src="js/js.js"></script>     
@@ -57,33 +57,30 @@
                     <div id="friend" class="collapse">
 
                         <ul class="list-group">
-                            <li class="list-group-item text-center"><h3>Username</h3></li>
-                            <li class="list-group-item text-center"><h3>Username</h3></li>
-                            <li class="list-group-item text-center"><h3>Username</h3></li>
-                        </ul>
 
-                        <?php
-                        $friends = $session->getFriends();
-                        foreach ($friends as $friend) {
-                            echo "<a href=\"#\" id=\"openarchive\" userid=\"{$friend}\">" . $session->lookupUsername($friend) . "</a> [ <a href=\"#\" id=\"remove\" friendid=\"{$friend}\">REMOVE</a> ]<br />";
-                        }
-                        ?>
+                            <?php
+                            $friends = $session->getFriends();
+                            foreach ($friends as $friend) {
+                                echo "<li class=\"list-group-item text-center\"><h3 id=\"openarchive\" userid=\"{$friend}\">" . $session->lookupUsername($friend) . "<a href=\"#\" id=\"remove\" friendid=\"{$friend}\"> [X]</a></h3></li><br />";
+                            }
+                            ?>
+                        </ul>
                     </div>
                     <button type="button" class="btn btn-danger btn-block" data-toggle="collapse" data-target="#request">Requests</button>
                     <div id="request" class="collapse">
-						<ul class="list-group">
-							<li class="list-group-item text-center"><h3>Username</h3>
-								<button type="button" class="btn btn-sm btn-danger" id="acceptbtn">Accept</button></li>
-							<li class="list-group-item text-center"><h3>Username</h3>
-								<button type="button" class="btn btn-sm btn-danger" id="acceptbtn">Accept</button></li>
-							<li class="list-group-item text-center"><h3>Username</h3>
-								<button type="button" class="btn btn-sm btn-danger" id="acceptbtn">Accept</button></li>
-						</ul>						
+                        </ul>						
 
                         <?php
                         $requests = $session->getPendingRequests();
                         foreach ($requests as $req) {
-                            echo $session->lookupUsername($req) . " [ <a href=\"#\" id=\"accept\" friendid=\"{$req}\">ACCEPT</a> / <a href=\"#\" id=\"decline\" friendid=\"{$req}\">DECLINE</a> ] <br />";
+                            echo "<ul class=\"list-group\">";
+                            echo "<li class=\"list-group-item text-center\">"
+                            . "<h3>" 
+                                    . $session->lookupUsername($req) .
+                            "</h3>"
+                            . "<button type=\"button\" class=\"btn btn-sm btn-danger\" class=\"reqbtn\" id=\"accbutton\" friendid=\"{$req}\">Accept</button>"
+                            . "<button type=\"button\" class=\"btn btn-sm btn-danger\" class=\"reqbtn\" id=\"decbutton\" friendid=\"{$req}\">Decline</button></li>";
+                            echo "</ul>";
                         }
                         if (count($requests) < 1) {
                             echo "You don't have any pending friend requests...";
@@ -92,10 +89,10 @@
                     </div>
                     <button type="button" class="btn btn-danger btn-block" data-toggle="collapse" data-target="#search">Search</button>
                     <div id="search" class="collapse">
-                            <form class="search-container">
-                                <input type="text" id="search-bar" placeholder="Search">
-                                <a href="#"><img class="search-icon" src="http://www.endlessicons.com/wp-content/uploads/2012/12/search-icon.png"></a>
-                            </form>
+                        <form class="search-container">
+                            <input type="text" id="search-bar" placeholder="Search">
+                            <a href="#"><img class="search-icon" src="http://www.endlessicons.com/wp-content/uploads/2012/12/search-icon.png"></a>
+                        </form>
                     </div>
                 </div>    
             </div>
@@ -118,15 +115,15 @@
                 <div align="center">  
                     <h1>Archive</h1>
 
-                        <button type="button" class="btn btn-danger btn-block" data-toggle="modal" data-target="#newpost">New Blog Entry</button>
-                        <div id="newpost" class="modal fade" role="dialog">
-                            <div class="modal-dialog">
-                        <!-- Modal content-->
-                                <div class="modal-content">
-                                    <div class="modal-header">
-                                        <h4 class="modal-title">New Blog Entry</h4>
-                                        <button type="button" class="close" data-dismiss="modal">&times;</button>
-                                    </div>
+                    <button type="button" class="btn btn-danger btn-block" data-toggle="modal" data-target="#newpost">New Blog Entry</button>
+                    <div id="newpost" class="modal fade" role="dialog">
+                        <div class="modal-dialog">
+                            <!-- Modal content-->
+                            <div class="modal-content">
+                                <div class="modal-header">
+                                    <h4 class="modal-title">New Blog Entry</h4>
+                                    <button type="button" class="close" data-dismiss="modal">&times;</button>
+                                </div>
                                 <div class="modal-body">
                                     <form id="newBlog">
                                         Title: <input type="text" name="title" id="title" style="margin-bottom:15px;" />
@@ -136,9 +133,9 @@
                                         </div>
                                     </form>
                                 </div>
-                                </div>
+                            </div>
+                        </div>
                     </div>
-                </div>
 
                     <button type="button" class="btn btn-danger btn-block" data-toggle="collapse" data-target="#prev">Past Entries</button>
                     <div align="left">
@@ -152,7 +149,7 @@
                     <a href="#" id="reloadown" class="btn btn-danger btn-block" role="button">Reload Archive</a>
 
                 </div>                  
-                
+
             </div>
 
         </div>
