@@ -33,15 +33,6 @@ class Session {
         }
     }
 
-    /**
-     * Destructs the class
-     * @author Mitchell M.
-     * @version 0.7
-     */
-    public function __destruct() {
-        
-    }
-
     /*
      * Singleton getInstance
      * Returns an instance of the session object that
@@ -117,12 +108,13 @@ class Session {
     }
 
     function uid() {
-        $qry = $this->qb->start();
-        $qry->select("userid")
-                ->from("sessions")
-                ->where("sid", "=", $this->sid);
-        $result = $qry->get();
-
+        if ($this->isLoggedIn()) {
+            $qry = $this->qb->start();
+            $qry->select("userid")
+                    ->from("sessions")
+                    ->where("sid", "=", $this->sid);
+            $result = $qry->get();
+        }
         return isset($result[0]['userid']) ? $result[0]['userid'] : -1;
     }
 
@@ -372,7 +364,7 @@ class Session {
                 }
             } else {
                 //Fail, return json element containing the error
-                return json_encode($qry->error());
+                return json_encode($qry->error);
             }
         }
         return 0;
@@ -413,7 +405,7 @@ class Session {
                 }
             } else {
                 //Fail, return json element containing the error
-                return json_encode($qry->lastError());
+                return json_encode($qry->error);
             }
         }
         return 0;
@@ -476,13 +468,13 @@ class Session {
     public function getNEntries($limit = 1) {
         $entry = array();
         $stmt = $this->mysqli->prepare("SELECT `title`, `blogid`, `author`, `content` FROM `blog` ORDER BY blogid DESC LIMIT ?");
-        $stmt->bind_result($title,$blogid,$author,$content);
+        $stmt->bind_result($title, $blogid, $author, $content);
         $stmt->bind_param("i", $limit);
         $stmt->execute();
         $stmt->store_result();
         if ($stmt->num_rows > 0) {
             while ($stmt->fetch()) {
-                $entry[] = array('title' => $title, 'author' => $this->lookupUsername($author), 'blogid' => $blogid, 'content' => $content);
+                $entry[] = $this->serializeEntry($title, $blogid, $author, $content);
             }
             return $entry;
         }
@@ -491,19 +483,36 @@ class Session {
 
     public function getUserLatestEntry($userid) {
         if (intval($userid)) {
-            $stmt = $this->mysqli->prepare("SELECT `title`, `blogid`, `author`, `content` FROM `blog` WHERE `author` = ? ORDER BY blogid DESC LIMIT 1");
+            $stmt = $this->mysqli->prepare("SELECT `title`, `blogid`, `author`, `content`, `timestamp` FROM `blog` WHERE `author` = ? ORDER BY blogid DESC LIMIT 1");
             $stmt->bind_param("i", $userid);
-            $stmt->bind_result($title, $blogid, $author, $content);
+            $stmt->bind_result($title, $blogid, $author, $content, $timestamp);
             $stmt->execute();
             $stmt->store_result();
             if ($stmt->num_rows > 0) {
                 while ($stmt->fetch()) {
-                    $entry = array('title' => $title, 'author' => $this->lookupUsername($author), 'blogid' => $blogid, 'content' => $content);
+                    $entry = $this->serializeEntry($title, $blogid, $author, $content, $timestamp);
                 }
                 return $entry;
             }
         }
         return null;
+    }
+
+    /**
+     * Takes the database return values that represent entries and 
+     * serializes them into an array that is consistent in structure
+     * @param type $title
+     * @param type $blogid
+     * @param type $author
+     * @param type $content
+     * @param type $timestmap optional
+     */
+    public function serializeEntry($title, $blogid, $author, $content, $timestamp = NULL) {
+        return array('title' => $title,
+            'author' => $this->lookupUsername($author),
+            'blogid' => $blogid,
+            'content' => $content,
+            'timestamp' => $timestamp);
     }
 
     /**
@@ -519,17 +528,14 @@ class Session {
 
     public function loadEntryByID($id) {
         $entry = array();
-        $stmt = $this->mysqli->prepare("SELECT `title`, `author`, `content`, `timestamp` FROM `blog` WHERE `blogid` = ?");
+        $stmt = $this->mysqli->prepare("SELECT `title`, `author`, `content`, `timestamp`, `blogid` FROM `blog` WHERE `blogid` = ?");
         $stmt->bind_param("i", $id);
-        $stmt->bind_result($title, $author, $content, $timestamp);
+        $stmt->bind_result($title, $author, $content, $timestamp, $blogid);
         $stmt->execute();
         $stmt->store_result();
         if ($stmt->num_rows > 0) {
             while ($stmt->fetch()) {
-                $entry['title'] = $title;
-                $entry['author'] = $author;
-                $entry['content'] = $content;
-                $entry['timestamp'] = $timestamp;
+                $entry = $this->serializeEntry($title, $blogid, $author, $content, $timestamp);
             }
             return $entry;
         }
