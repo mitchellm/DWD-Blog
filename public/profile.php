@@ -56,6 +56,12 @@
                     <button type="button" class="btn btn-danger btn-block" data-toggle="collapse" data-target="#friend">Friend List</button>
                     <div id="friend" class="collapse">
 
+                        <ul class="list-group">
+                            <li class="list-group-item text-center"><h3>Username</h3></li>
+                            <li class="list-group-item text-center"><h3>Username</h3></li>
+                            <li class="list-group-item text-center"><h3>Username</h3></li>
+                        </ul>
+
                         <?php
                         $friends = $session->getFriends();
                         foreach ($friends as $friend) {
@@ -65,6 +71,14 @@
                     </div>
                     <button type="button" class="btn btn-danger btn-block" data-toggle="collapse" data-target="#request">Requests</button>
                     <div id="request" class="collapse">
+						<ul class="list-group">
+							<li class="list-group-item text-center"><h3>Username</h3>
+								<button type="button" class="btn btn-sm btn-danger" id="acceptbtn">Accept</button></li>
+							<li class="list-group-item text-center"><h3>Username</h3>
+								<button type="button" class="btn btn-sm btn-danger" id="acceptbtn">Accept</button></li>
+							<li class="list-group-item text-center"><h3>Username</h3>
+								<button type="button" class="btn btn-sm btn-danger" id="acceptbtn">Accept</button></li>
+						</ul>						
 
                         <?php
                         $requests = $session->getPendingRequests();

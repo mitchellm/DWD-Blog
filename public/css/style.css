@@ -15,6 +15,10 @@ h1{
   font-size: 24pt;
 }
 
+h3{
+  font-size:12pt
+}
+
 ul{
   padding-left:20px;
 }
@@ -117,6 +121,14 @@ input#search-bar{
 
 .btn:hover{
   cursor: pointer;
+}
+
+h3, #acceptbtn{
+  display:inline-block;
+}
+
+.list-group-item{
+background:#EBFDD5;	
 }
 
 .modal-backdrop{
