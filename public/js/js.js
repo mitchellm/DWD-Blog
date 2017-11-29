@@ -190,7 +190,7 @@ $(function () {
                         });
                     });
                 } else {
-                location.reload();
+                    location.reload();
                 }
             },
             error: function () {
@@ -231,9 +231,26 @@ $(function () {
             success: function () {
                 location.reload();
             },
-            error: function (ex) {
-                    console.log('Exception:' + ex);
-                alert("Error with accept button!");
+            error: function () {
+                alert("Error with accept friend!");
+            }
+        });
+    });
+
+    $(document).on('click', 'button#decbutton', function (e) {
+        e.preventDefault();
+        var data = $(this).attr('friendid');
+        //Sends api request to logout and changes the page, impossible for logout to fail so no conditional
+        $.ajax({
+            type: 'POST',
+            data: 'request=declineRequest&friendID=' + data,
+            url: api + 'index.php',
+            async: true,
+            success: function () {
+                location.reload();
+            },
+            error: function () {
+                alert("Error with decline friend!");
             }
         });
     });
@@ -265,23 +282,7 @@ $(function () {
         });
     });
 
-    $(document).on('click', 'button#decbutton', function (e) {
-        e.preventDefault();
-        var data = $(this).attr('friendid');
-        //Sends api request to logout and changes the page, impossible for logout to fail so no conditional
-        $.ajax({
-            type: 'POST',
-            data: 'request=declineRequest&friendID=' + data,
-            url: api + 'index.php',
-            async: true,
-            success: function () {
-                document.href = "profile.php";
-            },
-            error: function () {
-                alert("Error with decline friend!");
-            }
-        });
-    });
+
 
     $(document).on('click', 'h3#openarchive', function (e) {
         e.preventDefault();

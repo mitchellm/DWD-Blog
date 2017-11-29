@@ -497,7 +497,7 @@ class Session {
             }
             return $entry;
         }
-        return $blog;
+        return false;
     }
 
     public function getUserLatestEntry($userid) {

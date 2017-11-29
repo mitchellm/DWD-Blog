@@ -73,12 +73,16 @@
                 <div align="center"> 
                     <?php
                     $entries = $session->getNEntries(5);
-                    for ($i = 0; $i < count($entries); $i++) {
-                        renderBlog($entries[$i]['title'], $entries[$i]['author'], $entries[$i]['content']);
-                        ?>
-                    <br />
-                    <hr style="blogsep" />
-                    <?php
+                    if($entries) {
+                        for ($i = 0; $i < count($entries); $i++) {
+                            renderBlog($entries[$i]['title'], $entries[$i]['author'], $entries[$i]['content']);
+                            ?>
+                        <br />
+                        <hr style="blogsep" />
+                        <?php
+                        }
+                    } else {
+                        echo "No entries! Fresh blog installation!";
                     }
                     ?>
 
