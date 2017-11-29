@@ -28,7 +28,7 @@ foreach($_POST as $key => $val) { $$key = trim($val); }
 //List of valid requests that are handled
 $VALID_REQUESTS = array('login', 'register', 'checklogin', 'logout','createEntry',
     'getBlogs','getArchive','removeFriend','acceptRequest','declineRequest','getArchiveByUID'
-    ,'loadEntryByID');
+    ,'loadEntryByID', 'searchFriends','addFriend');
 
 //Validating the existance of server variable "HTTP_X_REQUESTED_WITH", if it exists it can verify that the call is ajax
 $httpXrequested = isset($_SERVER['HTTP_X_REQUESTED_WITH']);

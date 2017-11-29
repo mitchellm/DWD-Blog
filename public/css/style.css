@@ -14,13 +14,19 @@ body{
 hr.blogsep {
 	border-top: 3px double #8c8b8b;
 }
-
+li#archive{
+    margin-bottom:5px;
+}
 h1{
   font-size: 24pt;
 }
 
 h3{
   font-size:12pt
+}
+
+h3#openarchive{
+    cursor:pointer;
 }
 
 ul{

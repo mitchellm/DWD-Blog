@@ -373,6 +373,9 @@ class Session {
     public function createRequest($friendID) {
         if ($this->isLoggedIn()) {
             $uid = $this->getUID($this->sid);
+            if($uid == $friendID) {
+                return 2;
+            }
             $qry = $this->qb->start();
             $qry->select("*")->from("friend_requests")->where("sender", "=", $uid)->where("recipent", "=", $friendID);
             //If this request has not been made yet
@@ -386,6 +389,8 @@ class Session {
                     //Fail, return json element containing the error
                     return json_encode($qry->lastError());
                 }
+            } else {
+                return 3;
             }
         }
         return 0;
@@ -434,8 +439,22 @@ class Session {
     public function userSearch($search) {
         if ($this->isLoggedIn()) {
             $qry = $this->qb->start();
-            $qry->select("email")->from("users")->where("email", "=", "%" + $search + "%");
-            return $qry->get();
+            $qry->select("*")->from("users")->where("email", "LIKE", $search);
+            $return = $qry->get();
+            $friends = $this->getFriends();
+            $nFriends = count($friends);
+            $nReturn = count($return);
+
+            for ($i = 0; $i < $nReturn; $i++) {
+                for ($j = 0; $j < $nFriends; $j++) {
+                    if(!isset($return[$i]['userid']))
+                        continue;
+                    if ($return[$i]['userid'] == $friends[$j]) {
+                        unset($return[$i]);
+                    }
+                }
+            }
+            return $return;
         }
     }
 

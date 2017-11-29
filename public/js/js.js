@@ -5,6 +5,16 @@ $(function () {
     /**
      * Binds an event listener on the loginForm, captures the entered inputs on submit and fires this function
      */
+    $.fn.enterKey = function (fnc) {
+        return this.each(function () {
+            $(this).keypress(function (ev) {
+                var keycode = (ev.keyCode ? ev.keyCode : ev.which);
+                if (keycode == '13') {
+                    fnc.call(this, ev);
+                }
+            })
+        })
+    }
 
     function reloadArchive() {
         $.ajax({
@@ -17,6 +27,22 @@ $(function () {
             },
             error: function (exception) {
                 console.log('Exception:' + exception);
+            }
+        });
+    }
+
+    function callSearch() {
+        var data = $("input#search-bar").val();
+        $.ajax({
+            type: 'POST',
+            data: 'request=searchFriends&data=' + data,
+            url: api + 'index.php',
+            async: true,
+            success: function (data) {
+                $("div#searchcontent").html(data);
+            },
+            error: function () {
+                alert("Error with search!");
             }
         });
     }
@@ -132,7 +158,6 @@ $(function () {
             url: api + 'index.php',
             async: true,
             success: function (data) {
-                alert(data);
                 $("div#register").modal('hide');
                 //Sets the response label to the API response and fades it in
 //                label.html(data);
@@ -149,7 +174,7 @@ $(function () {
      * Binds an event listener on the logout button, captures the entered inputs on submit and fires this function
      */
 
-    $('a#logoutButton').on('click', function (e) {
+    $(document).on('click', 'a#logoutButton', function (e) {
         e.preventDefault();
         //Sends api request to logout and changes the page, impossible for logout to fail so no conditional
         $.ajax({
@@ -158,11 +183,15 @@ $(function () {
             url: api + 'index.php',
             async: true,
             success: function () {
-                $("div#notice").fadeOut("slow", function () {
-                    loginArea.fadeIn("slow", function () {
-                        $("a#logoutButton").fadeOut("slow");
+                if (loginArea.length > 0) {
+                    $("div#notice").fadeOut("slow", function () {
+                        loginArea.fadeIn("slow", function () {
+                            $("a#logoutButton").fadeOut("slow");
+                        });
                     });
-                });
+                } else {
+                location.reload();
+                }
             },
             error: function () {
                 alert("Error with logout!");
@@ -182,10 +211,10 @@ $(function () {
             url: api + 'index.php',
             async: true,
             success: function () {
-                document.href = "profile.php";
+                location.reload();
             },
             error: function () {
-                alert("Error with logout!");
+                alert("Error with remove friend!");
             }
         });
     });
@@ -200,10 +229,38 @@ $(function () {
             url: api + 'index.php',
             async: true,
             success: function () {
-                document.href = "profile.php";
+                location.reload();
+            },
+            error: function (ex) {
+                    console.log('Exception:' + ex);
+                alert("Error with accept button!");
+            }
+        });
+    });
+
+    $("input#search-bar").enterKey(function (e) {
+        e.preventDefault();
+        callSearch();
+    });
+
+    $(document).on('click', 'img#search', function (e) {
+        e.preventDefault();
+        callSearch();
+    });
+
+    $(document).on('click', 'a#add', function (e) {
+        e.preventDefault();
+        var data = $(this).attr('friendid');
+        $.ajax({
+            type: 'POST',
+            data: 'request=addFriend&data=' + data,
+            url: api + 'index.php',
+            async: true,
+            success: function (data) {
+                $("div#searchcontent").html(data);
             },
             error: function () {
-                alert("Error with logout!");
+                alert("Error with add friend!");
             }
         });
     });
@@ -221,7 +278,7 @@ $(function () {
                 document.href = "profile.php";
             },
             error: function () {
-                alert("Error with logout!");
+                alert("Error with decline friend!");
             }
         });
     });
@@ -239,7 +296,7 @@ $(function () {
                 $("div#prev").html(data);
             },
             error: function () {
-                alert("Error with logout!");
+                alert("Error with open archive!");
             }
         });
     });
@@ -257,7 +314,7 @@ $(function () {
                 $("div#content").html(data);
             },
             error: function () {
-                alert("Error with logout!");
+                alert("Error with show blog!");
             }
         });
     });
@@ -274,7 +331,7 @@ $(function () {
                 $("div#prev").html(data);
             },
             error: function () {
-                alert("Error with logout!");
+                alert("Error with reloading archive!");
             }
         });
     });

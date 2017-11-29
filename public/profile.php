@@ -61,7 +61,7 @@
                             <?php
                             $friends = $session->getFriends();
                             foreach ($friends as $friend) {
-                                echo "<li class=\"list-group-item text-center\"><h3 id=\"openarchive\" userid=\"{$friend}\">" . $session->lookupUsername($friend) . "<a href=\"#\" id=\"remove\" friendid=\"{$friend}\"> [X]</a></h3></li><br />";
+                                echo "<li id=\"archive\" class=\"list-group-item text-center\"><h3 id=\"openarchive\" userid=\"{$friend}\">" . $session->lookupUsername($friend) . "<a href=\"#\" id=\"remove\" friendid=\"{$friend}\"> [X]</a></h3></li>";
                             }
                             ?>
                         </ul>
@@ -72,18 +72,19 @@
 
                         <?php
                         $requests = $session->getPendingRequests();
+                        echo "<ul class=\"list-group\">";
                         foreach ($requests as $req) {
-                            echo "<ul class=\"list-group\">";
-                            echo "<li class=\"list-group-item text-center\">"
-                            . "<h3>" 
-                                    . $session->lookupUsername($req) .
+                            echo "<li id=\"archive\" class=\"list-group-item text-center\">"
+                            . "<h3>"
+                            . $session->lookupUsername($req) .
                             "</h3>"
                             . "<button type=\"button\" class=\"btn btn-sm btn-danger\" class=\"reqbtn\" id=\"accbutton\" friendid=\"{$req}\">Accept</button>"
                             . "<button type=\"button\" class=\"btn btn-sm btn-danger\" class=\"reqbtn\" id=\"decbutton\" friendid=\"{$req}\">Decline</button></li>";
-                            echo "</ul>";
                         }
                         if (count($requests) < 1) {
                             echo "You don't have any pending friend requests...";
+                        } else {
+                            echo "</ul>";
                         }
                         ?>
                     </div>
@@ -91,8 +92,10 @@
                     <div id="search" class="collapse">
                         <form class="search-container">
                             <input type="text" id="search-bar" placeholder="Search">
-                            <a href="#"><img class="search-icon" src="http://www.endlessicons.com/wp-content/uploads/2012/12/search-icon.png"></a>
+                            <img class="search-icon" id="search" src="http://www.endlessicons.com/wp-content/uploads/2012/12/search-icon.png">
                         </form>
+                        <div id="searchcontent">
+                        </div>
                     </div>
                 </div>    
             </div>
@@ -147,7 +150,6 @@
                         </div>
                     </div>
                     <a href="#" id="reloadown" class="btn btn-danger btn-block" role="button">Reload Archive</a>
-
                 </div>                  
 
             </div>
