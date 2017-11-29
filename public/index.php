@@ -75,6 +75,12 @@
                     $entries = $session->getNEntries(5);
                     if($entries) {
                         for ($i = 0; $i < count($entries); $i++) {
+                           if($entries[$i]['content'] == ""){
+                               continue;
+                           }
+                           if($entries[$i]['title'] == ""){
+                               continue;
+                           }
                             renderBlog($entries[$i]['title'], $entries[$i]['author'], $entries[$i]['content']);
                             ?>
                         <br />
