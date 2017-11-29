@@ -286,7 +286,7 @@ $(function () {
 
     $(document).on('click', 'h3#openarchive', function (e) {
         e.preventDefault();
-        var data = $(this).attr('friendid');
+        var data = $(this).attr('userid');
         //Sends api request to logout and changes the page, impossible for logout to fail so no conditional
         $.ajax({
             type: 'POST',

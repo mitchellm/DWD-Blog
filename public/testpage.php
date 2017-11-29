@@ -22,5 +22,5 @@ if(!$session->isLoggedIn()) {
     $session->login("myname@gmail.com", "123123");
 }
 
-echo var_dump($session->userSearch("d"));
+echo var_dump($session->getArchiveByUID(44));
 ?>
